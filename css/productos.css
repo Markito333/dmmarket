@@ -736,3 +736,61 @@
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
 }
+/* Estilos para el filtro de categorías */
+.categorias-filtro {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+    margin-top: 10px;
+}
+
+.categoria-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-width: 70px;
+}
+
+.categoria-btn:hover, .categoria-btn.active {
+    background-color: #f0f0f0;
+}
+
+.categoria-icono {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.categoria-nombre {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    color: #333;
+}
+
+@media (max-width: 768px) {
+    .categorias-filtro {
+        gap: 10px;
+        padding: 8px 5px;
+    }
+    
+    .categoria-btn {
+        min-width: 60px;
+        padding: 5px;
+    }
+    
+    .categoria-icono {
+        font-size: 1rem;
+    }
+    
+    .categoria-nombre {
+        font-size: 0.7rem;
+    }
+}

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchBtn = document.getElementById('search-btn');
     const provinciaSelect = document.getElementById('provincia');
     const municipioSelect = document.getElementById('municipio');
+    const filtroCategorias = document.getElementById('filtro-categorias');
     
     let productos = cargarProductos();
     let productoActual = null;
@@ -38,6 +39,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    // Filtrar productos por categoría
+    function filtrarPorCategoria(categoria) {
+        if (categoria === 'todos') {
+            renderizarProductos(productos);
+            return;
+        }
+        
+        const productosFiltrados = productos.filter(producto => producto.categoria === categoria);
+        renderizarProductos(productosFiltrados);
+    }
+    
     // Renderizar productos
     function renderizarProductos(productosAMostrar = productos) {
         productosContainer.innerHTML = '';
@@ -55,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         productosAMostrar.forEach(producto => {
             const productoHTML = `
-                <div class="producto-card" data-id="${producto.id}">
+                <div class="producto-card" data-id="${producto.id}" data-categoria="${producto.categoria}">
                     ${producto.agotado ? '<div class="agotado-ribbon">Agotado</div>' : ''}
                     <div class="producto-imagen">
                         <img src="${producto.imagenes[0]}" alt="${producto.nombre}">
@@ -206,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Actualizar el contenido del modal de pedido
         const pedidoContent = `
-            <h2>Realizar Pedido</h2>
+            <h2>Realizar Encargo</h2>
             <div class="pedido-producto-info">
                 <div class="pedido-producto-imagen">
                     <img src="${productoActual.imagenes[0]}" alt="${productoActual.nombre}">
@@ -243,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="form-group full-width">
-                    <label for="cantidad">Cantidad</label>
+                    <label for="cantidad">Cantidad a encargar</label>
                     <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
                 </div>
                 <input type="hidden" id="productoId" name="productoId" value="${productoId}">
@@ -367,15 +379,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Buscar productos
     function buscarProductos(termino) {
         if (!termino || termino.trim() === '') {
-            renderizarProductos(productos);
+            const categoriaActiva = document.querySelector('.categoria-btn.active').dataset.categoria;
+            if (categoriaActiva === 'todos') {
+                renderizarProductos(productos);
+            } else {
+                filtrarPorCategoria(categoriaActiva);
+            }
             return;
         }
         
         const terminoLower = termino.toLowerCase();
-        const resultados = productos.filter(producto => 
+        const categoriaActiva = document.querySelector('.categoria-btn.active').dataset.categoria;
+        
+        let productosABuscar = productos;
+        if (categoriaActiva !== 'todos') {
+            productosABuscar = productos.filter(p => p.categoria === categoriaActiva);
+        }
+        
+        const resultados = productosABuscar.filter(producto => 
             producto.nombre.toLowerCase().includes(terminoLower) || 
-            producto.descripcion.toLowerCase().includes(terminoLower) ||
-            producto.categoria.toLowerCase().includes(terminoLower)
+            producto.descripcion.toLowerCase().includes(terminoLower)
         );
         
         renderizarProductos(resultados);
@@ -434,6 +457,23 @@ document.addEventListener('DOMContentLoaded', function() {
     municipioSelect.addEventListener('change', function() {
         verificarMensajeria(provinciaSelect.value, this.value);
     });
+    
+    // Event listeners para filtro de categorías
+    if (filtroCategorias) {
+        const botonesCategoria = filtroCategorias.querySelectorAll('.categoria-btn');
+        
+        botonesCategoria.forEach(boton => {
+            boton.addEventListener('click', function() {
+                // Remover clase active de todos los botones
+                botonesCategoria.forEach(btn => btn.classList.remove('active'));
+                // Añadir clase active al botón clickeado
+                this.classList.add('active');
+                
+                const categoria = this.dataset.categoria;
+                filtrarPorCategoria(categoria);
+            });
+        });
+    }
     
     // Inicializar
     cargarProvincias();
