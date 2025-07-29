@@ -598,3 +598,141 @@
         margin-bottom: 15px;
     }
 }
+/* Asegurar que las cards tengan el mismo tamaño */
+.producto-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.producto-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.producto-acciones {
+    margin-top: auto;
+}
+
+/* Mejorar el responsive de las imágenes */
+.producto-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+/* Grid de productos - Versión mejorada */
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* Ajustes para diferentes tamaños de pantalla */
+@media (max-width: 1200px) {
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 992px) {
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .productos-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en móviles */
+        gap: 15px;
+    }
+    
+    .producto-card {
+        margin-bottom: 0; /* Eliminamos el margen inferior */
+    }
+    
+    .producto-imagen {
+        height: 150px; /* Altura reducida para móviles */
+    }
+    
+    .producto-acciones {
+        flex-direction: column; /* Botones en columna para ahorrar espacio */
+    }
+    
+    .acciones-btn {
+        width: 100%;
+        margin: 3px 0;
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .productos-grid {
+        gap: 10px;
+    }
+    
+    .producto-info {
+        padding: 10px;
+    }
+    
+    .producto-titulo {
+        font-size: 1rem;
+    }
+    
+    .producto-precio {
+        font-size: 1.1rem;
+    }
+}
+/* Grid de productos */
+.productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 768px) {
+    .productos-grid {
+        grid-template-columns: repeat(2, 1fr); /* Fuerza 2 columnas */
+        gap: 10px;
+    }
+    
+    .producto-card {
+        margin: 0; /* Elimina márgenes */
+    }
+    
+    .producto-imagen {
+        height: 120px; /* Altura más compacta */
+    }
+    
+    .producto-titulo {
+        font-size: 0.9rem; /* Texto más pequeño */
+    }
+    
+    .producto-acciones {
+        flex-wrap: wrap;
+    }
+    
+    .acciones-btn {
+        min-width: 100%; /* Botones en columna */
+        margin: 3px 0;
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .productos-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Ajustes para desktop */
+@media (min-width: 1025px) {
+    .productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
