@@ -66,8 +66,8 @@ h1, h2, h3, h4 {
 }
 
 .btn-secondary {
-    background-color: rgb(196, 255, 188);
-    color: rgb(63, 156, 20);
+    background-color: #ff513a;
+    color: white;
 }
 
 .btn-secondary:hover {
