@@ -1,0 +1,132 @@
+body{
+    background-color: white;
+}
+
+
+.home-main {
+    padding: 50px 0;
+}
+
+.hero {
+    padding: 20px 0;
+}
+
+.hero .container {
+    display: flex;
+    align-items: center;
+    gap: 60px;
+}
+
+.hero-content {
+    flex: 1;
+    animation: fadeInLeft 0.8s ease;
+}
+
+.hero-content h1 {
+    font-size: 3.8rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: var(--color-primary);
+}
+
+.hero-content p {
+    font-size: 1.4rem;
+    margin-bottom: 30px;
+    color: var(--color-gray);
+    max-width: 90%;
+}
+
+.hero-image {
+    flex: 1;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    animation: fadeInRight 0.8s ease;
+}
+
+.hero-image img {
+    width: 100%;
+    height: auto;
+    transition: var(--transition);
+}
+
+.hero-image:hover img {
+    transform: scale(1.03);
+}
+.hero-content h1 {
+    font-weight: 800; /* más bold que el 700 por defecto */
+    font-size: 3.5rem;
+    
+}
+
+.highlight {
+    color: #ff5c5c; /* rojo coral llamativo, puedes ajustar el color */
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.logo i {
+    font-size: 2rem;
+    color: #ff5c5c; /* Puedes cambiar el color del ícono aquí */
+}
+
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 992px) {
+    .hero .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-content p {
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .hero-image {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+    
+    .home-main {
+        padding: 40px 0;
+    }
+}
