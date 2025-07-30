@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - D&M-Shop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/stats.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XGLXQV9SFN"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <span>D&M</span><span>Shop</span>
+            </div>
+            <nav class="admin-nav">
+                <a href="productos.html"><i class="fas fa-store"></i> Tienda</a>
+                <a href="stats.html" class="active"><i class="fas fa-chart-bar"></i> Estadísticas</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="stats-main">
+        <div class="container">
+            <h1>Estadísticas del Sitio</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-visits">0</div>
+                    <div class="stat-label">Visitas Totales</div>
+                    <i class="fas fa-users stat-icon"></i>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="unique-visitors">0</div>
+                    <div class="stat-label">Visitantes Únicos</div>
+                    <i class="fas fa-user-friends stat-icon"></i>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="today-visits">0</div>
+                    <div class="stat-label">Visitas Hoy</div>
+                    <i class="fas fa-calendar-day stat-icon"></i>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="popular-product">-</div>
+                    <div class="stat-label">Producto Más Visto</div>
+                    <i class="fas fa-star stat-icon"></i>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="visitsChart"></canvas>
+            </div>
+            
+            <div class="visits-table">
+                <h2>Últimas Visitas</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Página</th>
+                            <th>Dispositivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visits-list">
+                        <!-- Datos se cargarán dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/auth.js"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XGLXQV9SFN'); // Reemplaza con tu ID
+</script>
+</body>
+</html>

@@ -12,48 +12,41 @@
 <body>
     <div class="notification-container" id="notification-container"></div>
     
-    <header class="main-header">
-        <div class="container">
+   <header class="main-header">
+    <div class="container">
+        <div class="header-content">
             <div class="logo">
                 <span>D&M</span><span>Shop</span>
             </div>
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Buscar productos...">
-                <button id="search-btn"><i class="fas fa-search"></i></button>
-            </div>
             
-        </div>
-        <!-- Filtro de categorías -->
-    <div class="container">
-        <div class="categorias-filtro" id="filtro-categorias">
-            <button class="categoria-btn active" data-categoria="todos">
-                <i class="fas fa-th categoria-icono"></i>
-                <span class="categoria-nombre">Todos</span>
-            </button>
-            <button class="categoria-btn" data-categoria="muebles">
-                <i class="fas fa-couch categoria-icono"></i>
-                <span class="categoria-nombre">Muebles</span>
-            </button>
-            <button class="categoria-btn" data-categoria="iluminacion">
-                <i class="fas fa-lightbulb categoria-icono"></i>
-                <span class="categoria-nombre">Iluminación</span>
-            </button>
-            <button class="categoria-btn" data-categoria="decoracion">
-                <i class="fas fa-paint-brush categoria-icono"></i>
-                <span class="categoria-nombre">Decoración</span>
-            </button>
-            <button class="categoria-btn" data-categoria="textiles">
-                <i class="fas fa-tshirt categoria-icono"></i>
-                <span class="categoria-nombre">Textiles</span>
-            </button>
-            <button class="categoria-btn" data-categoria="jardin">
-                <i class="fas fa-leaf categoria-icono"></i>
-                <span class="categoria-nombre">Jardín</span>
-            </button>
+            <div class="search-and-categories">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Buscar productos...">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="categorias-filtro" id="filtro-categorias">
+                    <button class="categoria-btn active" data-categoria="todos">
+                        <i class="fas fa-th"></i>
+                        <span class="categoria-nombre">Todos</span>
+                    </button>
+                    <button class="categoria-btn" data-categoria="Ropa">
+                        <i class="fas fa-tshirt"></i>
+                        <span class="categoria-nombre">Ropa</span>
+                    </button>
+                    <button class="categoria-btn" data-categoria="Accesorios">
+                        <i class="fas fa-glasses"></i>
+                        <span class="categoria-nombre">Accesorios</span>
+                    </button>
+                    <button class="categoria-btn" data-categoria="Decoración">
+                        <i class="fas fa-home"></i>
+                        <span class="categoria-nombre">Decoración</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    </header>
-
+</header>
     <main class="productos-main">
         <div class="container">
             <section class="productos-grid" id="productos-container">

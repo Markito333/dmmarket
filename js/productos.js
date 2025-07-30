@@ -152,10 +152,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="detalles-acciones">
                     <button class="btn btn-secondary consultar-whatsapp-btn" data-id="${productoActual.id}" ${productoActual.agotado ? 'disabled' : ''}>
-                        <i class="fab fa-whatsapp"></i> Consultar
+                        <i class="fab fa-whatsapp"></i> Comprar
                     </button>
                     <button class="btn btn-primary hacer-pedido-btn" data-id="${productoActual.id}" ${productoActual.agotado ? 'disabled' : ''}>
-                        <i class="fas fa-shopping-cart"></i> Pedir ahora
+                        <i class="fas fa-shopping-cart"></i> Encargar
                     </button>
                 </div>
             </div>
@@ -485,92 +485,164 @@ function cargarProductos() {
     return [
         {
             id: 1,
-            nombre: "Silla Minimalista",
-            descripcion: "Silla de diseño minimalista con estructura de madera y tapizado en tela ecológica. Perfecta para añadir un toque de elegancia a cualquier espacio.",
-            precio: 249.99,
-            imagenes: ["img/producto1.jpg", "img/producto1-2.jpg", "img/producto1-3.jpg"],
-            categoria: "muebles",
+            nombre: "Reloj de Pared",
+            descripcion: "Reloj de pared, color plateado, viene con las intrucciones",
+            precio: 2800,
+            imagenes: ["img/relojpared.jpg"],
+            categoria: "Decoración",
             agotado: false
         },
         {
             id: 2,
-            nombre: "Lámpara Moderna",
-            descripcion: "Lámpara de pie con diseño contemporáneo. Altura ajustable y luz LED regulable en temperatura de color.",
-            precio: 129.99,
-            imagenes: ["img/producto2.jpg"],
-            categoria: "iluminacion",
-            agotado: true
+            nombre: "Pezoneras",
+            descripcion: "Par de pezoneras (El paquete completo incluye 5 pares)",
+            precio: 650,
+            imagenes: ["img/pezoneras.jpg"],
+            categoria: "Accesorios",
+            agotado: false
         },
         {
             id: 3,
             nombre: "Gafas Oscuras",
             descripcion: "Gafas elegantes de material plastico resistente.",
-            precio: 89.99,
-            imagenes: ["img/gafas.jpg", "img/ejemploGafas.jpg"],
-            categoria: "decoracion",
+            precio: 1500,
+            imagenes: ["img/gafas.jpg"],
+            categoria: "Accesorios",
             agotado: false
         },
         {
             id: 4,
-            nombre: "Mesa Centro Moderna",
-            descripcion: "Mesa de centro con tablero de madera maciza y patas en metal. Acabado protector ecológico.",
-            precio: 349.99,
-            imagenes: ["img/producto4.jpg"],
-            categoria: "muebles",
+            nombre: "Espejuelos",
+            descripcion: "Solo disponibles los transparentes",
+            precio: 1350,
+            imagenes: ["img/espejuelos.jpg"],
+            categoria: "Accesorios",
             agotado: false
         },
         {
             id: 5,
-            nombre: "Cojín Decorativo",
-            descripcion: "Cojín decorativo con estampado geométrico. Funda extraíble y lavable. Relleno de fibra ecológica.",
-            precio: 39.99,
-            imagenes: ["img/producto5.jpg"],
-            categoria: "textiles",
+            nombre: "Gafas",
+            descripcion: "Gafas de modelo ovalado, la vibra de la buena fiesta.",
+            precio: 1500,
+            imagenes: ["img/gafasdos.jpg"],
+            categoria: "Accesorios",
             agotado: false
         },
         {
             id: 6,
-            nombre: "Espejo Circular",
-            descripcion: "Espejo decorativo circular con marco delgado. Incluye sistema de sujeción oculto.",
-            precio: 149.99,
-            imagenes: ["img/producto6.jpg"],
-            categoria: "decoracion",
+            nombre: "Juego-Licra Deportiva",
+            descripcion: "Talla M - Súper cómoda.",
+            precio: 3800,
+            imagenes: ["img/licranegra.jpg"],
+            categoria: "Ropa",
             agotado: false
         },
         {
             id: 7,
-            nombre: "Sofá Moderno",
-            descripcion: "Sofá de tres plazas en tejido resistente. Estructura de madera y almohadones incluidos.",
-            precio: 899.99,
-            imagenes: ["img/producto7.jpg"],
-            categoria: "muebles",
+            nombre: "Cintos de mujer",
+            descripcion: "Ajustables y en varios colores.",
+            precio: 1200,
+            imagenes: ["img/cintos.jpg"],
+            categoria: "Accesorios",
             agotado: false
         },
         {
             id: 8,
-            nombre: "Set de Jardinería",
-            descripcion: "Set de 3 herramientas de jardinería con mangos de madera. Incluye pala, rastrillo y trasplantador.",
-            precio: 49.99,
-            imagenes: ["img/producto8.jpg"],
-            categoria: "jardin",
+            nombre: "Vestido Gris",
+            descripcion: "Talla M - Elegante y ajustado.",
+            precio: 3800,
+            imagenes: ["img/vestido.jpg"],
+            categoria: "Ropa",
             agotado: false
         },
         {
             id: 9,
-            nombre: "Cortinas Modernas",
-            descripcion: "Cortinas opacas en tejido de lino. Incluye varilla y anillas. Disponible en varias medidas.",
-            precio: 69.99,
-            imagenes: ["img/producto9.jpg"],
-            categoria: "textiles",
+            nombre: "Paris France",
+            descripcion: "Talla S.",
+            precio: 2800,
+            imagenes: ["img/paris.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 10,
+            nombre: "Mono de hombre",
+            descripcion: "Talla M.",
+            precio: 6300,
+            imagenes: ["img/mononegro.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 11,
+            nombre: "Mono de mujer",
+            descripcion: "Talla S.",
+            precio: 3800,
+            imagenes: ["img/licras.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 12,
+            nombre: "Vestido negro",
+            descripcion: "Talla M.",
+            precio: 3800,
+            imagenes: ["img/vestidonegro.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 13,
+            nombre: "Paris France Negro",
+            descripcion: "Talla S.",
+            precio: 2800,
+            imagenes: ["img/negroparis.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 14,
+            nombre: "Conjunto negro",
+            descripcion: "Talla M.",
+            precio: 6800,
+            imagenes: ["img/juegonegro.jpg"],
+            categoria: "Ropa",
             agotado: false
         },
         {
-            id: 10,
-            nombre: "Estantería Flotante",
-            descripcion: "Estantería flotante en acabado mate. Soporte de metal oculto. Capacidad de carga: 15 kg por balda.",
-            precio: 79.99,
-            imagenes: ["img/producto10.jpg"],
-            categoria: "muebles",
+            id: 15,
+            nombre: "Blusitas Rayas/Enteras",
+            descripcion: "Talla S. Cada una",
+            precio: 1700,
+            imagenes: ["img/blusitasotras.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 16,
+            nombre: "Blusitas ",
+            descripcion: "Talla S. Cada una",
+            precio: 1700,
+            imagenes: ["img/blusitasotrass.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 17,
+            nombre: "Blusitas con diseño",
+            descripcion: "Talla M. Cada una",
+            precio: 2800,
+            imagenes: ["img/blusitas.jpg" , "img/blusitasdetras.jpg"],
+            categoria: "Ropa",
+            agotado: false
+        },
+         {
+            id: 18,
+            nombre: "Blusitas Los Angeles",
+            descripcion: "Talla S. Cada una",
+            precio: 2800,
+            imagenes: ["img/losangeles.jpg" , "img/losangelesdetras.jpg"],
+            categoria: "Ropa",
             agotado: false
         }
     ];
