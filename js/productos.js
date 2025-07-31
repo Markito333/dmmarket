@@ -901,6 +901,168 @@ function cargarProductos() {
             categoria: "Llantas",
             agotado: false
         },
+        {
+            id: 123,
+            nombre: "LLanta Vossen",
+            descripcion: "18 8 5/114.3  ET 38",
+            precio: 1000,
+            imagenes: ["img/piezas/llantavossen11.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 124,
+            nombre: "LLanta Vossen",
+            descripcion: "18 8 5/114.3  ET 38",
+            precio: 1000,
+            imagenes: ["img/piezas/llantavossen12.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 124,
+            nombre: "LLanta Vossen",
+            descripcion: "18 8 5/100  ET 38",
+            precio: 1000,
+            imagenes: ["img/piezas/llantavossen13.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 125,
+            nombre: "LLanta2",
+            descripcion: "20 8.5 5/114.3",
+            precio: 1300,
+            imagenes: ["img/piezas/llantavossen13.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 126,
+            nombre: "LLanta Vossen",
+            descripcion: "18 8 5/114.3 ET38",
+            precio: 1000,
+            imagenes: ["img/piezas/llantavossen14.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 127,
+            nombre: "LLanta Vossen",
+            descripcion: "17 8 5/114.3 ET38",
+            precio: 950,
+            imagenes: ["img/piezas/llantavossen15.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 128,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 4/100 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen16.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 129,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 5/114.3 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen17.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 130,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 5/114 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen18.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 131,
+            nombre: "LLanta Vossen",
+            descripcion: "17 8 4/100 ET38",
+            precio: 950,
+            imagenes: ["img/piezas/llantavossen19.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 132,
+            nombre: "LLanta Vossen",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen20.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 133,
+            nombre: "LLanta Vossen",
+            descripcion: "14 6 8/100/114.3 ET38",
+            precio: 700,
+            imagenes: ["img/piezas/llantavossen21.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 134,
+            nombre: "LLanta Vossen",
+            descripcion: "18 8 5/114.3 ET38",
+            precio: 1000,
+            imagenes: ["img/piezas/llantavossen22.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 135,
+            nombre: "LLanta Vossen",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen23.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 136,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 4/100 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen24.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 137,
+            nombre: "LLanta",
+            descripcion: "18 8 5/112 ET38",
+            precio: 1000,
+            imagenes: ["img/piezas/llanta3.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 138,
+            nombre: "LLanta",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen25.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 139,
+            nombre: "LLanta Vossen",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen26.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
     ];
 }
 
