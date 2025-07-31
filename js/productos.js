@@ -1063,6 +1063,96 @@ function cargarProductos() {
             categoria: "Llantas",
             agotado: false
         },
+        {
+            id: 140,
+            nombre: "LLanta",
+            descripcion: "17 5/100/114",
+            precio: 950,
+            imagenes: ["img/piezas/llanta4.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 141,
+            nombre: "LLanta Vossen",
+            descripcion: "14 6 8/100/114.3",
+            precio: 700,
+            imagenes: ["img/piezas/llantavossen27.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 142,
+            nombre: "LLanta Vossen",
+            descripcion: "17 8 5/114.3 ET38",
+            precio: 950,
+            imagenes: ["img/piezas/llantavossen28.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 143,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 5/114.3 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen29.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 144,
+            nombre: "LLanta Vossen",
+            descripcion: "16 7 4/100 ET38",
+            precio: 850,
+            imagenes: ["img/piezas/llantavossen30.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+          {
+            id: 145,
+            nombre: "LLanta Vossen",
+            descripcion: "14 6 8/100/114.3 ET30",
+            precio: 700,
+            imagenes: ["img/piezas/llantavossen31.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 146,
+            nombre: "LLanta Vossen",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen32.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+         {
+            id: 147,
+            nombre: "LLanta Vossen",
+            descripcion: "15 7.5 4/100 ET38",
+            precio: 750,
+            imagenes: ["img/piezas/llantavossen33.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 148,
+            nombre: "Cranes 16",
+            descripcion: "N042 SET 16 PCS+KEY NUT 12x1.5 CHROME",
+            precio: 50,
+            imagenes: ["img/piezas/cranes16.jpg"],
+            categoria: "Cranes",
+            agotado: false
+        },
+        {
+            id: 149,
+            nombre: "Cranes 20",
+            descripcion: "N042 SET 20 PCS+KEY NUT 12x1.5 CHROME",
+            precio: 50,
+            imagenes: ["img/piezas/cranes20.jpg"],
+            categoria: "Cranes",
+            agotado: false
+        },
     ];
 }
 
