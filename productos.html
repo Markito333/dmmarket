@@ -25,24 +25,50 @@
                     <button id="search-btn"><i class="fas fa-search"></i></button>
                 </div>
                 
-                <div class="categorias-filtro" id="filtro-categorias">
-                    <button class="categoria-btn active" data-categoria="todos">
-                        <i class="fas fa-th"></i>
-                        <span class="categoria-nombre">Todos</span>
-                    </button>
-                    <button class="categoria-btn" data-categoria="Ropa">
-                        <i class="fas fa-tshirt"></i>
-                        <span class="categoria-nombre">Ropa</span>
-                    </button>
-                    <button class="categoria-btn" data-categoria="Accesorios">
-                        <i class="fas fa-glasses"></i>
-                        <span class="categoria-nombre">Accesorios</span>
-                    </button>
-                    <button class="categoria-btn" data-categoria="Decoración">
-                        <i class="fas fa-home"></i>
-                        <span class="categoria-nombre">Decoración</span>
-                    </button>
-                </div>
+              <div class="categorias-filtro" id="filtro-categorias">
+    <div class="category-tabs">
+        <button class="category-tab active" data-category="hogar-moda">
+            <i class="fas fa-home"></i>
+            <span>Hogar/Moda</span>
+        </button>
+        <button class="category-tab" data-category="piezas-carro">
+            <i class="fas fa-car"></i>
+            <span>Piezas</span>
+        </button>
+    </div>
+    
+    <div class="subcategories-container">
+        <div class="subcategory-group active" data-parent="hogar-moda">
+            <button class="subcategory-btn" data-categoria="Ropa">
+                <i class="fas fa-tshirt"></i>
+                <span>Ropa</span>
+            </button>
+            <button class="subcategory-btn" data-categoria="Accesorios">
+                <i class="fas fa-glasses"></i>
+                <span>Accesorios</span>
+            </button>
+            <button class="subcategory-btn" data-categoria="Decoración">
+                <i class="fas fa-couch"></i>
+                <span>Decoración</span>
+            </button>
+        </div>
+        
+        <div class="subcategory-group" data-parent="piezas-carro">
+            <button class="subcategory-btn" data-categoria="Llantas">
+                <i class="fas fa-cog"></i>
+                <span>Llantas</span>
+            </button>
+            <button class="subcategory-btn" data-categoria="Gomas">
+                <i class="fas fa-tire"></i>
+                <span>Gomas</span>
+            </button>
+            <button class="subcategory-btn" data-categoria="Cranes">
+                <i class="fas fa-tools"></i>
+                <span>Cranes</span>
+            </button>
+        </div>
+    </div>
+</div>
             </div>
         </div>
     </div>

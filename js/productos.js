@@ -20,7 +20,63 @@ document.addEventListener('DOMContentLoaded', function() {
             provinciaSelect.innerHTML += `<option value="${provincia}">${provincia}</option>`;
         }
     }
+    // Event listeners para el sistema de categorías
+document.querySelectorAll('.category-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Remover active de todas las pestañas
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        // Añadir active a la pestaña clickeada
+        this.classList.add('active');
+        
+        const category = this.dataset.category;
+        
+        // Ocultar todos los grupos de subcategorías
+        document.querySelectorAll('.subcategory-group').forEach(group => {
+            group.classList.remove('active');
+        });
+        
+        // Mostrar solo el grupo de subcategorías correspondiente
+        document.querySelector(`.subcategory-group[data-parent="${category}"]`).classList.add('active');
+        
+        // Si hay un botón activo en el grupo, mantenerlo, sino seleccionar el primero
+        const activeBtn = document.querySelector(`.subcategory-group[data-parent="${category}"] .subcategory-btn.active`);
+        if (!activeBtn) {
+            const firstBtn = document.querySelector(`.subcategory-group[data-parent="${category}"] .subcategory-btn`);
+            if (firstBtn) {
+                firstBtn.classList.add('active');
+                filtrarPorCategoria(firstBtn.dataset.categoria);
+            }
+        } else {
+            filtrarPorCategoria(activeBtn.dataset.categoria);
+        }
+    });
+});
+
+// Event listeners para los botones de subcategoría
+document.querySelectorAll('.subcategory-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Remover active de todos los botones del mismo grupo
+        const parentGroup = this.closest('.subcategory-group');
+        parentGroup.querySelectorAll('.subcategory-btn').forEach(b => b.classList.remove('active'));
+        
+        // Añadir active al botón clickeado
+        this.classList.add('active');
+        
+        const categoria = this.dataset.categoria;
+        filtrarPorCategoria(categoria);
+    });
+});
+
+// Función para filtrar productos (modificada para manejar las nuevas categorías)
+function filtrarPorCategoria(categoria) {
+    if (categoria === 'todos') {
+        renderizarProductos(productos);
+        return;
+    }
     
+    const productosFiltrados = productos.filter(producto => producto.categoria === categoria);
+    renderizarProductos(productosFiltrados);
+}
     // Cargar municipios según provincia seleccionada
     function cargarMunicipios(provincia) {
         municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
@@ -644,7 +700,108 @@ function cargarProductos() {
             imagenes: ["img/losangeles.jpg" , "img/losangelesdetras.jpg"],
             categoria: "Ropa",
             agotado: false
-        }
+        },
+
+
+         {
+            id: 101,
+            nombre: "Llanta",
+            descripcion: "Rin 18 5/114",
+            precio: 550,
+            imagenes: ["img/piezas/llanta18.jpg"],
+            categoria: "Llantas",
+            agotado: false
+        },
+        {
+            id: 102,
+            nombre: "Goma Centara",
+            descripcion: "Goma ",
+            precio: 8500,
+            imagenes: ["img/piezas/centara.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+        {
+            id: 103,
+            nombre: "Goma Centara",
+            descripcion: "Goma ",
+            precio: 8500,
+            imagenes: ["img/piezas/centara2.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+        {
+            id: 104,
+            nombre: "Goma A607",
+            descripcion: "Goma ",
+            precio: 8500,
+            imagenes: ["img/piezas/GomaA607.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+        {
+            id: 105,
+            nombre: "Goma A609",
+            descripcion: "Goma ",
+            precio: 8500,
+            imagenes: ["img/piezas/GomaA609.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+        {
+            id: 106,
+            nombre: "Goma Centara",
+            descripcion: "Goma ",
+            precio: 8500,
+            imagenes: ["img/piezas/centara.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+        {
+            id: 107,
+            nombre: "Goma Grenilander",
+            descripcion: "",
+            precio: 15000,
+            imagenes: ["img/piezas/grenilander.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+         {
+            id: 108,
+            nombre: "Goma Mazzini",
+            descripcion: "",
+            precio: 15000,
+            imagenes: ["img/piezas/mazzini.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+         {
+            id: 109,
+            nombre: "Goma Uraturn",
+            descripcion: "",
+            precio: 15000,
+            imagenes: ["img/piezas/uraturn.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+         {
+            id: 110,
+            nombre: "Goma Windforce",
+            descripcion: "",
+            precio: 15000,
+            imagenes: ["img/piezas/windforce.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
+         {
+            id: 111,
+            nombre: "Goma L-ZEAL 56",
+            descripcion: "",
+            precio: 15000,
+            imagenes: ["img/piezas/lzeal.jpg"],
+            categoria: "Gomas",
+            agotado: false
+        },
     ];
 }
 
