@@ -3,12 +3,16 @@ function configurarMetodosPago(producto, total, conRin = false) {
     const esPieza = Config.categoriasPiezas.includes(producto.categoria);
     const metodosPagoContainer = document.getElementById('metodos-pago');
     
+    // Texto adicional para Rin
+    const rinInfo = producto.categoria === 'Gomas' ? 
+                  ` (${conRin ? 'Con Rin R' + producto.descripcion.match(/R(\d+)/)[1] : 'Sin Rin'})` : 
+                  '';
+    
     let metodosPagoHTML = '';
-    const conRinText = conRin ? ` (Con Rin)` : '';
-
+    
     if (esPieza) {
         metodosPagoHTML = `
-            <h3>Total: $${total} USD${conRinText}</h3>
+            <h3>Total: $${total} USD${rinInfo}</h3>
             <div class="metodo-pago" data-metodo="zelle" data-porcentaje="5">
                 <div class="metodo-icono">
                     <i class="fas fa-money-bill-wave"></i>
@@ -60,7 +64,7 @@ function configurarMetodosPago(producto, total, conRin = false) {
         `;
     } else {
         metodosPagoHTML = `
-            <h3>Total: ${formatearPrecio(total)}${conRinText}</h3>
+            <h3>Total: ${formatearPrecio(total)}${rinInfo}</h3>
             <div class="metodo-pago" data-metodo="transferencia">
                 <div class="metodo-icono">
                     <i class="fas fa-exchange-alt"></i>

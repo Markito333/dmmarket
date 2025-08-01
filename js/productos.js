@@ -162,7 +162,10 @@ function renderizarProductos(productosAMostrar = productos) {
 function mostrarModalDetalles(productoId) {
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
-
+    
+    // Inicializar propiedad para guardar la selección de rín
+    productoActual.conRinSeleccionado = false;
+    
     const detallesContainer = document.getElementById('detalles-container');
     const esGoma = productoActual.categoria === 'Gomas';
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
@@ -250,9 +253,11 @@ function mostrarModalDetalles(productoId) {
             if (this.value === 'si') {
                 precioElement.textContent = `$${precioConRin} USD`;
                 precioRinElement.style.display = 'none'; // Ocultamos porque ya se refleja en el precio principal
+                productoActual.conRinSeleccionado = true;
             } else {
                 precioElement.textContent = `$${precioBase} USD`;
                 precioRinElement.style.display = 'none';
+                productoActual.conRinSeleccionado = false;
             }
         });
     }
@@ -260,9 +265,7 @@ function mostrarModalDetalles(productoId) {
     // Event listeners para los botones del modal
     document.querySelector('.comprar-ahora-btn')?.addEventListener('click', function() {
         cantidadActual = parseInt(document.getElementById('cantidad-detalles').value) || 1;
-        if (esGoma) {
-            conRin = document.getElementById('rin-detalles').value === 'si';
-        }
+        
         cerrarModal();
         mostrarModalPago(productoActual.id);
     });
@@ -278,6 +281,7 @@ function mostrarModalDetalles(productoId) {
     
     document.getElementById('detallesModal').classList.add('show');
 }
+
 // Mostrar modal de pedido con imagen
 function mostrarModalPedido(productoId) {
     productoActual = productos.find(p => p.id == productoId);
@@ -403,23 +407,30 @@ function mostrarModalPago(productoId) {
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
     
-    // Verificar nuevamente la cantidad y opción de Rin
+    // Verificar nuevamente la cantidad
     const cantidadInput = document.getElementById(`cantidad-${productoId}`) || document.getElementById('cantidad-detalles');
     if (cantidadInput) {
         cantidadActual = parseInt(cantidadInput.value) || 1;
     }
     
-    // Resetear conRin y actualizar solo si es goma
-    conRin = false;
-    if (productoActual.categoria === 'Gomas') {
-        const selectRin = document.getElementById(`rin-${productoId}`) || document.getElementById('rin-detalles');
-        if (selectRin) {
-            conRin = selectRin.value === 'si';
+    // Determinar si es con rín (usando la propiedad guardada o el valor actual)
+    const esGoma = productoActual.categoria === 'Gomas';
+    let conRinActual = false;
+    
+    if (esGoma) {
+        // Usar la propiedad guardada en productoActual si existe (desde el modal de detalles)
+        if (productoActual.conRinSeleccionado !== undefined) {
+            conRinActual = productoActual.conRinSeleccionado;
+        } else {
+            // Si no, usar el valor del select correspondiente
+            const selectRin = document.getElementById(`rin-${productoId}`) || document.getElementById('rin-detalles');
+            if (selectRin) {
+                conRinActual = selectRin.value === 'si';
+            }
         }
     }
     
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
-    const esGoma = productoActual.categoria === 'Gomas';
     
     // Calcular precio según opción de Rin para gomas
     let precioBase = productoActual.precio;
@@ -427,13 +438,13 @@ function mostrarModalPago(productoId) {
     
     if (esGoma) {
         precioRin = calcularPrecioRin(productoActual.descripcion);
-        precioBase = conRin ? precioRin : precioBase;
+        precioBase = conRinActual ? precioRin : precioBase;
     }
     
     const total = precioBase * cantidadActual;
     
     // Configurar métodos de pago
-    configurarMetodosPago(productoActual, total, conRin);
+    configurarMetodosPago(productoActual, total, conRinActual);
     
     // Resetear método de pago seleccionado
     metodoPagoSeleccionado = null;
@@ -473,13 +484,19 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     let producto;
     let cantidad;
     let conRinActual = false;
+    let rinSeleccionado = "Sin Rin"; // Valor por defecto
 
     if (esCompra) {
         producto = productoActual;
         cantidad = cantidadActual;
         
         if (producto.categoria === 'Gomas') {
-            conRinActual = conRin;
+            // Usar la propiedad guardada o el valor actual
+            conRinActual = producto.conRinSeleccionado !== undefined ? 
+                          producto.conRinSeleccionado : 
+                          conRin;
+            
+            rinSeleccionado = conRinActual ? "Con Rin" : "Sin Rin";
         }
     } else {
         const productoId = document.getElementById('productoId').value;
@@ -487,7 +504,8 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         cantidad = document.getElementById('cantidad').value;
         
         if (producto.categoria === 'Gomas') {
-            conRinActual = document.getElementById('con-rin').value === 'si';
+            conRinActual = document.getElementById('con-rin')?.value === 'si';
+            rinSeleccionado = conRinActual ? "Con Rin" : "Sin Rin";
         }
     }
 
@@ -503,12 +521,14 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     let precioBase = producto.precio;
     let precioRin = 0;
     let conRinText = '';
+    let rinSize = '';
     
     if (esGoma) {
         precioRin = calcularPrecioRin(producto.descripcion);
         precioBase = conRinActual ? precioRin : precioBase;
-        const rinSize = producto.descripcion.match(/R(\d+)/)[1];
-        conRinText = conRinActual ? ` (Con Rin R${rinSize})` : '';
+        const match = producto.descripcion.match(/R(\d+)/);
+        rinSize = match ? match[1] : '';
+        conRinText = conRinActual ? ` (Con Rin R${rinSize})` : ` (Sin Rin)`;
     }
     
     const total = precioBase * cantidad;
@@ -536,6 +556,18 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
             }
             
             numeroWhatsapp = Config.whatsappNumbers.pedidos;
+            
+            mensaje = `¡Hola! Quiero comprar en D&M-Shop:
+
+📌 *Producto:* ${producto.nombre}
+📝 *Descripción:* ${producto.descripcion}
+🛞 *Opción Rin:* ${rinSeleccionado}${rinSize ? ' R' + rinSize : ''}
+💰 *Precio unitario:* $${precioBase} USD
+🔢 *Cantidad:* ${cantidad}
+💵 *Total:* $${totalPago.toFixed(2)} USD
+💳 *Método de pago:* ${metodoPagoText}
+
+¿Podrías confirmarme la disponibilidad y el proceso de pago? ¡Gracias!`;
         } else {
             if (metodoPago === 'transferencia') {
                 metodoPagoText = 'Transferencia';
@@ -544,18 +576,18 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
             } else if (metodoPago === 'efectivo-usd') {
                 metodoPagoText = 'Efectivo (USD)';
             }
-        }
-        
-        mensaje = `¡Hola! Quiero comprar en D&M-Shop:
+            
+            mensaje = `¡Hola! Quiero comprar en D&M-Shop:
 
-📌 *Producto:* ${producto.nombre}${conRinText}
+📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
-💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
+💰 *Precio unitario:* ${formatearPrecio(precioBase)}
 🔢 *Cantidad:* ${cantidad}
-💵 *Total:* ${esPieza ? `$${totalPago.toFixed(2)} USD` : formatearPrecio(totalPago)}
+💵 *Total:* ${formatearPrecio(totalPago)}
 💳 *Método de pago:* ${metodoPagoText}
 
 ¿Podrías confirmarme la disponibilidad y el proceso de pago? ¡Gracias!`;
+        }
     } else {
         // Mensaje para encargo
         const nombre = document.getElementById('nombre').value;
@@ -565,9 +597,9 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         
         mensaje = `¡Hola! Quiero hacer un encargo en D&M-Shop:
 
-📌 *Producto:* ${producto.nombre}${conRinText}
+📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
-💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
+${esGoma ? `🛞 *Opción Rin:* ${rinSeleccionado}${rinSize ? ' R' + rinSize : ''}\n` : ''}💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${esPieza ? `$${total} USD` : formatearPrecio(total)}
 
@@ -628,4 +660,123 @@ function filtrarPorCategoria(categoria) {
     
     const productosFiltrados = productos.filter(producto => producto.categoria === categoria);
     renderizarProductos(productosFiltrados);
+}
+
+// Configurar métodos de pago
+function configurarMetodosPago(producto, total, conRin = false) {
+    const esPieza = Config.categoriasPiezas.includes(producto.categoria);
+    const metodosPagoContainer = document.getElementById('metodos-pago');
+    
+    // Texto adicional para Rin
+    const rinInfo = producto.categoria === 'Gomas' ? 
+                  ` (${conRin ? 'Con Rin R' + producto.descripcion.match(/R(\d+)/)[1] : 'Sin Rin'})` : 
+                  '';
+    
+    let metodosPagoHTML = '';
+    
+    if (esPieza) {
+        metodosPagoHTML = `
+            <h3>Total: $${total} USD${rinInfo}</h3>
+            <div class="metodo-pago" data-metodo="zelle" data-porcentaje="5">
+                <div class="metodo-icono">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Pago por Zelle</h4>
+                    <p>Total: $${(total * (1 + Config.tasaZelle)).toFixed(2)} USD (incluye 5%)</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="zelle" required>
+                </div>
+            </div>
+            <div class="metodo-pago" data-metodo="transferencia" data-porcentaje="10">
+                <div class="metodo-icono">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Transferencia</h4>
+                    <p>Total: $${(total * (1 + Config.tasaTransferencia)).toFixed(2)} USD (incluye 10%)</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="transferencia" required>
+                </div>
+            </div>
+            <div class="metodo-pago" data-metodo="efectivo-cup">
+                <div class="metodo-icono">
+                    <i class="fas fa-money-bill"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Efectivo (CUP)</h4>
+                    <p>Total: $${total} USD (Tasa del día)</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="efectivo-cup" required>
+                </div>
+            </div>
+            <div class="metodo-pago" data-metodo="efectivo-usd">
+                <div class="metodo-icono">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Efectivo (USD)</h4>
+                    <p>Total: $${total} USD</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="efectivo-usd" required>
+                </div>
+            </div>
+        `;
+    } else {
+        metodosPagoHTML = `
+            <h3>Total: ${formatearPrecio(total)}${rinInfo}</h3>
+            <div class="metodo-pago" data-metodo="transferencia">
+                <div class="metodo-icono">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Transferencia</h4>
+                    <p>Pago por transferencia bancaria</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="transferencia-hm" required>
+                </div>
+            </div>
+            <div class="metodo-pago" data-metodo="efectivo-cup">
+                <div class="metodo-icono">
+                    <i class="fas fa-money-bill"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Efectivo (CUP)</h4>
+                    <p>Pago en moneda nacional</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="efectivo-cup-hm" required>
+                </div>
+            </div>
+            <div class="metodo-pago" data-metodo="efectivo-usd">
+                <div class="metodo-icono">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="metodo-info">
+                    <h4>Efectivo (USD)</h4>
+                    <p>Pago en dólares americanos</p>
+                </div>
+                <div class="metodo-seleccion">
+                    <input type="radio" name="metodo-pago" id="efectivo-usd-hm" required>
+                </div>
+            </div>
+        `;
+    }
+    
+    metodosPagoContainer.innerHTML = metodosPagoHTML;
+    
+    // Configurar evento para selección de método de pago
+    document.querySelectorAll('.metodo-pago').forEach(metodo => {
+        metodo.addEventListener('click', function() {
+            document.querySelectorAll('.metodo-pago').forEach(m => m.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        });
+    });
 }
