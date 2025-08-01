@@ -168,8 +168,6 @@ function mostrarModalDetalles(productoId) {
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
     const precioBase = productoActual.precio;
     const precioConRin = esGoma ? calcularPrecioRin(productoActual.descripcion) : 0;
-    
-    // Determinar si mostrar botón de encargo
     const mostrarEncargo = !esPieza;
     
     // Crear HTML para la galería de imágenes
@@ -205,8 +203,8 @@ function mostrarModalDetalles(productoId) {
         </div>
         <div class="detalles-texto">
             <h2 class="detalles-titulo">${productoActual.nombre}</h2>
-            <p class="detalles-precio">${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}</p>
-            ${esGoma ? `<p class="precio-rin" style="display:none; color:#2b8a3e; font-weight:bold;"></p>` : ''}
+            <p class="detalles-precio" id="detalles-precio">${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}</p>
+            ${esGoma ? `<p class="precio-rin" id="precio-rin-detalles" style="display:none; color:#2b8a3e; font-weight:bold;">$${precioConRin} USD (Con Rin)</p>` : ''}
             <p class="detalles-descripcion">${productoActual.descripcion}</p>
             
             ${productoActual.agotado ? '<p class="detalles-agotado"><i class="fas fa-times-circle"></i> Producto agotado</p>' : ''}
@@ -242,8 +240,22 @@ function mostrarModalDetalles(productoId) {
     // Inicializar galería
     inicializarGaleria();
     
-    // Configurar eventos para el select de Rin en el modal
-    configurarEventosRin();
+    // Configurar evento para el select de Rin si es una goma
+    if (esGoma) {
+        const selectRin = document.getElementById('rin-detalles');
+        const precioElement = document.getElementById('detalles-precio');
+        const precioRinElement = document.getElementById('precio-rin-detalles');
+
+        selectRin.addEventListener('change', function() {
+            if (this.value === 'si') {
+                precioElement.textContent = `$${precioConRin} USD`;
+                precioRinElement.style.display = 'none'; // Ocultamos porque ya se refleja en el precio principal
+            } else {
+                precioElement.textContent = `$${precioBase} USD`;
+                precioRinElement.style.display = 'none';
+            }
+        });
+    }
 
     // Event listeners para los botones del modal
     document.querySelector('.comprar-ahora-btn')?.addEventListener('click', function() {
@@ -266,7 +278,6 @@ function mostrarModalDetalles(productoId) {
     
     document.getElementById('detallesModal').classList.add('show');
 }
-
 // Mostrar modal de pedido con imagen
 function mostrarModalPedido(productoId) {
     productoActual = productos.find(p => p.id == productoId);
@@ -464,7 +475,6 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     let conRinActual = false;
 
     if (esCompra) {
-        // Para compra directa
         producto = productoActual;
         cantidad = cantidadActual;
         
@@ -472,7 +482,6 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
             conRinActual = conRin;
         }
     } else {
-        // Para pedido normal
         const productoId = document.getElementById('productoId').value;
         producto = productos.find(p => p.id == productoId);
         cantidad = document.getElementById('cantidad').value;
@@ -540,6 +549,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         mensaje = `¡Hola! Quiero comprar en D&M-Shop:
 
 📌 *Producto:* ${producto.nombre}${conRinText}
+📝 *Descripción:* ${producto.descripcion}
 💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${esPieza ? `$${totalPago.toFixed(2)} USD` : formatearPrecio(totalPago)}
@@ -556,6 +566,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         mensaje = `¡Hola! Quiero hacer un encargo en D&M-Shop:
 
 📌 *Producto:* ${producto.nombre}${conRinText}
+📝 *Descripción:* ${producto.descripcion}
 💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${esPieza ? `$${total} USD` : formatearPrecio(total)}

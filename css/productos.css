@@ -299,7 +299,7 @@
     background-position: center;
     background-attachment: fixed;
     filter: blur(2px);
-    opacity: 0.61;
+    opacity: 0.31;
     z-index: -1;
     pointer-events: none;
 }
@@ -1346,4 +1346,21 @@
     margin-bottom: 15px;
     color: #ccc;
 }
+/* Añade esto a tu archivo productos.css */
+.detalles-precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2b8a3e;
+    margin: 10px 0;
+}
 
+#rin-detalles {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-left: 10px;
+}
+
+.producto-rin {
+    margin: 15px 0;
+}
