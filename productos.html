@@ -12,67 +12,70 @@
 <body>
     <div class="notification-container" id="notification-container"></div>
     
-   <header class="main-header">
-    <div class="container">
-        <div class="header-content">
-            <div class="logo">
-                <span>D&M</span><span>Shop</span>
-            </div>
-            
-            <div class="search-and-categories">
-                <div class="search-container">
-                    <input type="text" id="search-input" placeholder="Buscar productos...">
-                    <button id="search-btn"><i class="fas fa-search"></i></button>
-                </div>
-                
-              <div class="categorias-filtro" id="filtro-categorias">
-    <div class="category-tabs">
-        <button class="category-tab active" data-category="hogar-moda">
-            <i class="fas fa-home"></i>
-            <span>Hogar/Moda</span>
-        </button>
-        <button class="category-tab" data-category="piezas-carro">
-            <i class="fas fa-car"></i>
-            <span>Piezas</span>
-        </button>
-    </div>
-    
-    <div class="subcategories-container">
-        <div class="subcategory-group active" data-parent="hogar-moda">
-            <button class="subcategory-btn" data-categoria="Ropa">
-                <i class="fas fa-tshirt"></i>
-                <span>Ropa</span>
-            </button>
-            <button class="subcategory-btn" data-categoria="Accesorios">
-                <i class="fas fa-glasses"></i>
-                <span>Accesorios</span>
-            </button>
-            <button class="subcategory-btn" data-categoria="Decoración">
-                <i class="fas fa-couch"></i>
-                <span>Decoración</span>
-            </button>
-        </div>
-        
-        <div class="subcategory-group" data-parent="piezas-carro">
-            <button class="subcategory-btn" data-categoria="Llantas">
-                <i class="fas fa-cog"></i>
-                <span>Llantas</span>
-            </button>
-            <button class="subcategory-btn" data-categoria="Gomas">
-                <i class="fas fa-tire"></i>
-                <span>Gomas</span>
-            </button>
-            <button class="subcategory-btn" data-categoria="Cranes">
-                <i class="fas fa-tools"></i>
-                <span>Cranes</span>
-            </button>
-        </div>
-    </div>
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+               <div class="logo">
+  <span class="brand">D&M</span>
+  <span class="shop">Shop</span>
 </div>
+
+                
+                <div class="search-and-categories">
+                   <div class="search-container">
+    <input type="text" id="search-input" placeholder="Buscar productos (nombre o descripción)...">
+    <button id="search-btn" style="display:none;"><i class="fas fa-search"></i></button>
+</div>
+                    
+                    <div class="categorias-filtro" id="filtro-categorias">
+                        <div class="category-tabs">
+                            <button class="category-tab active" data-category="hogar-moda">
+                                <i class="fas fa-home"></i>
+                                <span>Hogar/Moda</span>
+                            </button>
+                            <button class="category-tab" data-category="piezas-carro">
+                                <i class="fas fa-car"></i>
+                                <span>Piezas</span>
+                            </button>
+                        </div>
+                        
+                        <div class="subcategories-container">
+                            <div class="subcategory-group active" data-parent="hogar-moda">
+                                <button class="subcategory-btn" data-categoria="Ropa">
+                                    <i class="fas fa-tshirt"></i>
+                                    <span>Ropa</span>
+                                </button>
+                                <button class="subcategory-btn" data-categoria="Accesorios">
+                                    <i class="fas fa-glasses"></i>
+                                    <span>Accesorios</span>
+                                </button>
+                                <button class="subcategory-btn" data-categoria="Decoración">
+                                    <i class="fas fa-couch"></i>
+                                    <span>Decoración</span>
+                                </button>
+                            </div>
+                            
+                            <div class="subcategory-group" data-parent="piezas-carro">
+                                <button class="subcategory-btn" data-categoria="Llantas">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Llantas</span>
+                                </button>
+                                <button class="subcategory-btn" data-categoria="Gomas">
+                                    <i class="fas fa-tire"></i>
+                                    <span>Gomas</span>
+                                </button>
+                                <button class="subcategory-btn" data-categoria="Cranes">
+                                    <i class="fas fa-tools"></i>
+                                    <span>Cranes</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
+    
     <main class="productos-main">
         <div class="container">
             <section class="productos-grid" id="productos-container">
@@ -82,58 +85,50 @@
     </main>
 
     <!-- Modal de Detalles -->
-<!-- Modal de Detalles -->
-<div class="modal" id="detallesModal">
-    <div class="modal-content detalles-modal-content">
-        <span class="close-modal">&times;</span>
-        <div class="detalles-container" id="detalles-container">
-            <!-- Contenido dinámico aquí -->
+    <div class="modal" id="detallesModal">
+        <div class="modal-content detalles-modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="detalles-container" id="detalles-container">
+                <!-- Contenido dinámico aquí -->
+            </div>
         </div>
     </div>
-</div>
 
     <!-- Modal de Pedido -->
-   <!-- Modal de Pedido -->
-<div class="modal" id="pedidoModal">
-    <div class="modal-content pedido-modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Realizar Encargo</h2>
-        <form id="pedidoForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" required>
-                </div>
-                <div class="form-group">
-                    <label for="apellidos">Apellidos</label>
-                    <input type="text" id="apellidos" name="apellidos" required>
-                </div>
+    <div class="modal" id="pedidoModal">
+        <div class="modal-content pedido-modal-content">
+            <span class="close-modal">&times;</span>
+            <div id="pedido-content">
+                <!-- Contenido dinámico aquí -->
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="provincia">Provincia</label>
-                    <select id="provincia" name="provincia" required>
-                        <option value="">Seleccione una provincia</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="municipio">Municipio</label>
-                    <select id="municipio" name="municipio" required>
-                        <option value="">Seleccione un municipio</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group full-width">
-                <label for="cantidad">Cantidad a encargar</label>
-                <input type="number" id="cantidad" name="cantidad" min="1" value="1" required>
-            </div>
-            <input type="hidden" id="productoId" name="productoId">
-            <button type="submit" class="btn btn-primary">Confirmar Pedido <i class="fas fa-paper-plane"></i></button>
-        </form>
+        </div>
     </div>
-</div>
 
+    <!-- Modal de Método de Pago -->
+    <div class="modal" id="pagoModal">
+        <div class="modal-content pago-modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Seleccione Método de Pago</h2>
+            <div class="metodos-pago" id="metodos-pago">
+                <!-- Contenido dinámico según categoría -->
+            </div>
+            <div class="pago-acciones">
+                <button class="btn btn-outline cancelar-pago">Cancelar</button>
+                <button class="btn btn-primary confirmar-pago">Confirmar <i class="fas fa-check"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/productosData.js"></script>
+    <script src="js/ubicaciones.js"></script>
+    <script src="js/notificaciones.js"></script>
+    <script src="js/galeria.js"></script>
+    <script src="js/metodosPago.js"></script>
     <script src="js/productos.js"></script>
-    <script src="js/toast.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/busqueda.js"></script>
+
 </body>
 </html>

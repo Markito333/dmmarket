@@ -68,6 +68,7 @@ body{
     font-size: 1.8rem;
     font-weight: 600;
     color: #333;
+    font-family: 'Poppins', sans-serif;
 }
 
 .logo i {
@@ -129,4 +130,92 @@ body{
     .home-main {
         padding: 40px 0;
     }
+}
+.btn.btn-primary {
+  text-decoration: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid #fff; /* borde blanco */
+  border-radius: 8px;
+  background-color: #000; /* fondo negro */
+  color: #fff; /* letra blanca */
+  position: relative;
+  transition: all 0.3s ease-in-out;
+  animation: slideBounce 0.8s ease-out;
+  cursor: pointer;
+}
+
+.btn.btn-primary:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Nueva animación: entrada con rebote */
+@keyframes slideBounce {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.whatsapp-contact {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 15px 0;
+  font-size: 1.1em;
+  color: #25D366;
+  font-weight: 500;
+  
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.whatsapp-contact i {
+  font-size: 1.5em;
+}
+
+/* Animación de entrada suave */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.whatsapp-contact {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6em;
+  margin: 15px 0;
+  font-size: 1.1em;
+  color: #25D366;
+  font-weight: 500;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* ícono ligeramente más grande */
+.whatsapp-contact i {
+  font-size: 1.5em;
+}
+
+/* Centrado en móviles */
+@media (max-width: 600px) {
+  .whatsapp-contact {
+    justify-content: center;
+    text-align: center;
+  }
 }
