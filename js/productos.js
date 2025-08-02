@@ -1,11 +1,10 @@
-// Variables globales
 let productos = [];
 let productoActual = null;
 let metodoPagoSeleccionado = null;
 let cantidadActual = 1;
 let conRin = false;
+let llantaSeleccionada = null;
 
-// Cargar provincias
 function cargarProvincias() {
     const provinciaSelect = document.getElementById('provincia');
     provinciaSelect.innerHTML = '<option value="">Seleccione una provincia</option>';
@@ -14,7 +13,6 @@ function cargarProvincias() {
     }
 }
 
-// Cargar municipios según provincia seleccionada
 function cargarMunicipios(provincia) {
     const municipioSelect = document.getElementById('municipio');
     municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
@@ -25,22 +23,74 @@ function cargarMunicipios(provincia) {
     }
 }
 
-// Función para calcular precio del Rin
-function calcularPrecioRin(descripcion) {
+function extraerTamanioRin(descripcion) {
     const match = descripcion.match(/R(\d+)/);
-    if (match) {
-        const rinSize = parseInt(match[1]);
-        if (rinSize === 14) return 300;
-        else if (rinSize === 15) return 350;
-        else if (rinSize === 16) return 350;
-        else if (rinSize === 17) return 450;
-        else if (rinSize === 18) return 550;
-        else if (rinSize === 20) return 750;
-    }
-    return 0;
+    return match ? parseInt(match[1]) : null;
 }
 
-// Configurar eventos para actualizar precios del Rin
+function filtrarLlantasCompatibles(tamanioRin) {
+    return productos.filter(producto => 
+        producto.categoria === 'Llantas' && 
+        producto.descripcion.startsWith(tamanioRin.toString())
+    );
+}
+
+function mostrarModalLlantas(tamanioRin, callbackSeleccion) {
+    const llantasCompatibles = filtrarLlantasCompatibles(tamanioRin);
+    
+    if (llantasCompatibles.length === 0) {
+        mostrarNotificacion('No hay llantas disponibles para este tamaño', 'error');
+        return;
+    }
+    
+    const modalContent = `
+        <div class="modal-header">
+            <h3>Seleccione una llanta R${tamanioRin}</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="llantas-container">
+                ${llantasCompatibles.map(llanta => `
+                    <div class="llanta-card" data-id="${llanta.id}">
+                        <img src="${llanta.imagenes[0]}" alt="${llanta.nombre}">
+                        <h4>${llanta.nombre}</h4>
+                        <p>${llanta.descripcion}</p>
+                        <p class="precio">$${llanta.precio} USD</p>
+                        <button class="btn btn-primary seleccionar-llanta">Seleccionar</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-llantas';
+    modal.innerHTML = modalContent;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    modal.querySelectorAll('.seleccionar-llanta').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const llantaId = this.closest('.llanta-card').dataset.id;
+            const llanta = llantasCompatibles.find(l => l.id == llantaId);
+            callbackSeleccion(llanta);
+            document.body.removeChild(modal);
+        });
+    });
+}
+
+function calcularPrecioBaseGoma(precioConRin) {
+    if (precioConRin === 350) return 300;  // R14
+    if (precioConRin === 400) return 350;  // R15/R16
+    if (precioConRin === 550) return 450;  // R17
+    if (precioConRin === 650) return 550;  // R18
+    if (precioConRin === 850) return 750;  // R20
+    return precioConRin - 50; 
+}
+
 function configurarEventosRin() {
     document.querySelectorAll('[id^="rin-"]').forEach(select => {
         select.addEventListener('change', function() {
@@ -49,41 +99,56 @@ function configurarEventosRin() {
             const producto = productos.find(p => p.id == productoId || p.id == productoId.replace('detalles-', ''));
             
             if (producto && producto.categoria === 'Gomas') {
-                const precioBase = producto.precio;
-                const precioConRin = calcularPrecioRin(producto.descripcion);
-                const precioMostrado = this.value === 'si' ? precioConRin : precioBase;
+                const tamanioRin = extraerTamanioRin(producto.descripcion);
                 
-                // Actualizar precio en la card
-                if (productoCard) {
-                    const precioElement = productoCard.querySelector('.producto-precio');
-                    const precioRinElement = productoCard.querySelector('.precio-rin');
-                    
-                    if (precioElement) {
-                        precioElement.textContent = `$${precioBase} USD`;
-                        if (precioRinElement) {
-                            if (this.value === 'si') {
-                                precioRinElement.textContent = `$${precioConRin} USD (Con Rin)`;
+                if (this.value === 'si' && tamanioRin) {
+                    mostrarModalLlantas(tamanioRin, (llanta) => {
+                        llantaSeleccionada = llanta;
+                        const precioBase = calcularPrecioBaseGoma(producto.precio);
+                        const precioTotal = precioBase + llanta.precio;
+                        
+                        if (productoCard) {
+                            const precioElement = productoCard.querySelector('.producto-precio');
+                            const precioRinElement = productoCard.querySelector('.precio-rin');
+                            
+                            if (precioElement) {
+                                precioElement.textContent = `$${precioTotal} USD`;
+                            }
+                            
+                            if (precioRinElement) {
+                                precioRinElement.textContent = `(Goma: $${precioBase} + Llanta: $${llanta.precio})`;
                                 precioRinElement.style.display = 'block';
-                            } else {
-                                precioRinElement.style.display = 'none';
                             }
                         }
+                        
+                        producto.conRinSeleccionado = true;
+                        producto.llantaSeleccionada = llanta;
+                    });
+                } else {
+                    llantaSeleccionada = null;
+                    const precioBase = producto.precio;
+                    
+                    if (productoCard) {
+                        const precioElement = productoCard.querySelector('.producto-precio');
+                        const precioRinElement = productoCard.querySelector('.precio-rin');
+                        
+                        if (precioElement) {
+                            precioElement.textContent = `$${precioBase} USD`;
+                        }
+                        
+                        if (precioRinElement) {
+                            precioRinElement.style.display = 'none';
+                        }
                     }
-                }
-                
-                // Si estamos en el modal de detalles
-                if (this.id === 'rin-detalles') {
-                    const precioElement = document.querySelector('#detallesModal .detalles-precio');
-                    if (precioElement) {
-                        precioElement.textContent = `$${precioMostrado} USD`;
-                    }
+                    
+                    producto.conRinSeleccionado = false;
+                    producto.llantaSeleccionada = null;
                 }
             }
         });
     });
 }
 
-// Renderizar productos
 function renderizarProductos(productosAMostrar = productos) {
     const productosContainer = document.getElementById('productos-container');
     productosContainer.innerHTML = '';
@@ -103,9 +168,6 @@ function renderizarProductos(productosAMostrar = productos) {
         const esGoma = producto.categoria === 'Gomas';
         const esPieza = Config.categoriasPiezas.includes(producto.categoria);
         const precioBase = producto.precio;
-        const precioConRin = esGoma ? calcularPrecioRin(producto.descripcion) : 0;
-        
-        // Determinar si mostrar botón de encargo
         const mostrarEncargo = !esPieza;
         
         const productoHTML = `
@@ -128,8 +190,8 @@ function renderizarProductos(productosAMostrar = productos) {
                     <div class="producto-rin">
                         <label for="rin-${producto.id}">Con Rin:</label>
                         <select id="rin-${producto.id}" ${producto.agotado ? 'disabled' : ''}>
-                            <option value="no">No (+$0)</option>
-                            <option value="si">Sí (+$${precioConRin - precioBase})</option>
+                            <option value="no">No ($${precioBase} USD)</option>
+                            <option value="si">Sí (Seleccionar llanta)</option>
                         </select>
                     </div>
                     ` : ''}
@@ -154,26 +216,23 @@ function renderizarProductos(productosAMostrar = productos) {
         productosContainer.insertAdjacentHTML('beforeend', productoHTML);
     });
     
-    // Configurar eventos para los selects de Rin
     configurarEventosRin();
 }
 
-// Mostrar modal de detalles con galería de imágenes
 function mostrarModalDetalles(productoId) {
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
     
-    // Inicializar propiedad para guardar la selección de rín
     productoActual.conRinSeleccionado = false;
+    productoActual.llantaSeleccionada = null;
+    llantaSeleccionada = null;
     
     const detallesContainer = document.getElementById('detalles-container');
     const esGoma = productoActual.categoria === 'Gomas';
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
     const precioBase = productoActual.precio;
-    const precioConRin = esGoma ? calcularPrecioRin(productoActual.descripcion) : 0;
     const mostrarEncargo = !esPieza;
     
-    // Crear HTML para la galería de imágenes
     let galeriaHTML = '';
     productoActual.imagenes.forEach((imagen, index) => {
         galeriaHTML += `
@@ -183,7 +242,6 @@ function mostrarModalDetalles(productoId) {
         `;
     });
     
-    // Crear HTML para los indicadores de la galería
     let indicadoresHTML = '';
     productoActual.imagenes.forEach((_, index) => {
         indicadoresHTML += `
@@ -207,7 +265,10 @@ function mostrarModalDetalles(productoId) {
         <div class="detalles-texto">
             <h2 class="detalles-titulo">${productoActual.nombre}</h2>
             <p class="detalles-precio" id="detalles-precio">${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}</p>
-            ${esGoma ? `<p class="precio-rin" id="precio-rin-detalles" style="display:none; color:#2b8a3e; font-weight:bold;">$${precioConRin} USD (Con Rin)</p>` : ''}
+            <div id="llanta-seleccionada-container" style="display: none; margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                <p><strong>Llanta seleccionada:</strong> <span id="llanta-seleccionada-nombre"></span></p>
+                <p><strong>Precio llanta:</strong> $<span id="llanta-seleccionada-precio">0</span> USD</p>
+            </div>
             <p class="detalles-descripcion">${productoActual.descripcion}</p>
             
             ${productoActual.agotado ? '<p class="detalles-agotado"><i class="fas fa-times-circle"></i> Producto agotado</p>' : ''}
@@ -221,8 +282,8 @@ function mostrarModalDetalles(productoId) {
             <div class="producto-rin">
                 <label for="rin-detalles">Con Rin:</label>
                 <select id="rin-detalles" ${productoActual.agotado ? 'disabled' : ''}>
-                    <option value="no">No (+$0)</option>
-                    <option value="si">Sí (+$${precioConRin - precioBase})</option>
+                    <option value="no">No ($${precioBase} USD)</option>
+                    <option value="si">Sí (Seleccionar llanta)</option>
                 </select>
             </div>
             ` : ''}
@@ -240,29 +301,40 @@ function mostrarModalDetalles(productoId) {
         </div>
     `;
     
-    // Inicializar galería
     inicializarGaleria();
     
-    // Configurar evento para el select de Rin si es una goma
     if (esGoma) {
         const selectRin = document.getElementById('rin-detalles');
         const precioElement = document.getElementById('detalles-precio');
-        const precioRinElement = document.getElementById('precio-rin-detalles');
+        const llantaContainer = document.getElementById('llanta-seleccionada-container');
+        const llantaNombre = document.getElementById('llanta-seleccionada-nombre');
+        const llantaPrecio = document.getElementById('llanta-seleccionada-precio');
+        const tamanioRin = extraerTamanioRin(productoActual.descripcion);
 
         selectRin.addEventListener('change', function() {
-            if (this.value === 'si') {
-                precioElement.textContent = `$${precioConRin} USD`;
-                precioRinElement.style.display = 'none'; // Ocultamos porque ya se refleja en el precio principal
-                productoActual.conRinSeleccionado = true;
+            if (this.value === 'si' && tamanioRin) {
+                mostrarModalLlantas(tamanioRin, (llanta) => {
+                    llantaSeleccionada = llanta;
+                    productoActual.llantaSeleccionada = llanta;
+                    const precioBaseGoma = calcularPrecioBaseGoma(productoActual.precio);
+                    const precioTotal = precioBaseGoma + llanta.precio;
+                    
+                    precioElement.textContent = `$${precioTotal} USD`;
+                    llantaNombre.textContent = llanta.nombre;
+                    llantaPrecio.textContent = llanta.precio;
+                    llantaContainer.style.display = 'block';
+                    productoActual.conRinSeleccionado = true;
+                });
             } else {
+                llantaSeleccionada = null;
+                productoActual.llantaSeleccionada = null;
                 precioElement.textContent = `$${precioBase} USD`;
-                precioRinElement.style.display = 'none';
+                llantaContainer.style.display = 'none';
                 productoActual.conRinSeleccionado = false;
             }
         });
     }
 
-    // Event listeners para los botones del modal
     document.querySelector('.comprar-ahora-btn')?.addEventListener('click', function() {
         cantidadActual = parseInt(document.getElementById('cantidad-detalles').value) || 1;
         
@@ -290,10 +362,10 @@ function mostrarModalPedido(productoId) {
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
     const esGoma = productoActual.categoria === 'Gomas';
     const precioBase = productoActual.precio;
-    const precioConRin = esGoma ? calcularPrecioRin(productoActual.descripcion) : 0;
-    const precioMostrado = conRin ? precioConRin : precioBase;
+    const precioMostrado = conRin && llantaSeleccionada ? 
+        (calcularPrecioBaseGoma(precioBase) + llantaSeleccionada.precio) : 
+        precioBase;
     
-    // Actualizar el contenido del modal de pedido
     const pedidoContent = document.getElementById('pedido-content');
     pedidoContent.innerHTML = `
         <h2>Realizar Encargo</h2>
@@ -304,7 +376,11 @@ function mostrarModalPedido(productoId) {
             <div class="pedido-producto-texto">
                 <h4>${productoActual.nombre}</h4>
                 <p class="precio">${esPieza ? `$${precioMostrado} USD` : formatearPrecio(precioMostrado)}</p>
-                ${esGoma && conRin ? `<p class="precio-rin" style="color:#2b8a3e;">Incluye Rin</p>` : ''}
+                ${esGoma && conRin && llantaSeleccionada ? `
+                    <p class="precio-rin" style="color:#2b8a3e;">
+                        Incluye Rin: ${llantaSeleccionada.nombre} ($${llantaSeleccionada.precio} USD)
+                    </p>
+                ` : ''}
                 <p class="tiempo-entrega"><i class="fas fa-truck"></i> Tiempo de entrega: 25-30 días</p>
             </div>
         </div>
@@ -342,43 +418,82 @@ function mostrarModalPedido(productoId) {
             <div class="form-group full-width" id="goma-rin-container">
                 <label for="con-rin">¿Incluir Rin?</label>
                 <select id="con-rin" name="con-rin">
-                    <option value="no" ${!conRin ? 'selected' : ''}>No (+$0)</option>
-                    <option value="si" ${conRin ? 'selected' : ''}>Sí (+$${precioConRin - precioBase})</option>
+                    <option value="no" ${!conRin ? 'selected' : ''}>No ($${precioBase} USD)</option>
+                    <option value="si" ${conRin ? 'selected' : ''}>Sí (Seleccionar llanta)</option>
                 </select>
             </div>
+            ${conRin && llantaSeleccionada ? `
+            <div class="llanta-seleccionada-info" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                <p><strong>Llanta seleccionada:</strong> ${llantaSeleccionada.nombre}</p>
+                <p><strong>Precio llanta:</strong> $${llantaSeleccionada.precio} USD</p>
+            </div>
+            ` : ''}
             ` : ''}
             <button type="submit" class="btn btn-primary">Confirmar Pedido <i class="fas fa-paper-plane"></i></button>
         </form>
     `;
     
-    // Configurar evento para actualizar precio cuando cambia la opción de Rin
     if (esGoma) {
-        document.getElementById('con-rin')?.addEventListener('change', function() {
+        const tamanioRin = extraerTamanioRin(productoActual.descripcion);
+        const selectRin = document.getElementById('con-rin');
+        
+        selectRin.addEventListener('change', function() {
             conRin = this.value === 'si';
-            const precioElement = document.querySelector('.pedido-producto-texto .precio');
-            const precioRinElement = document.querySelector('.pedido-producto-texto .precio-rin');
             
-            if (precioElement) {
-                precioElement.textContent = `$${conRin ? precioConRin : precioBase} USD`;
-            }
-            
-            if (precioRinElement) {
-                precioRinElement.style.display = conRin ? 'block' : 'none';
+            if (conRin) {
+                mostrarModalLlantas(tamanioRin, (llanta) => {
+                    llantaSeleccionada = llanta;
+                    const precioBaseGoma = calcularPrecioBaseGoma(productoActual.precio);
+                    const precioTotal = precioBaseGoma + llanta.precio;
+                    
+                    const precioElement = document.querySelector('.pedido-producto-texto .precio');
+                    const precioRinElement = document.querySelector('.pedido-producto-texto .precio-rin');
+                    
+                    if (precioElement) {
+                        precioElement.textContent = `$${precioTotal} USD`;
+                    }
+                    
+                    const llantaInfoContainer = document.querySelector('.llanta-seleccionada-info');
+                    if (llantaInfoContainer) {
+                        llantaInfoContainer.innerHTML = `
+                            <p><strong>Llanta seleccionada:</strong> ${llanta.nombre}</p>
+                            <p><strong>Precio llanta:</strong> $${llanta.precio} USD</p>
+                        `;
+                    } else {
+                        const gomaRinContainer = document.getElementById('goma-rin-container');
+                        if (gomaRinContainer) {
+                            gomaRinContainer.insertAdjacentHTML('afterend', `
+                                <div class="llanta-seleccionada-info" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                                    <p><strong>Llanta seleccionada:</strong> ${llanta.nombre}</p>
+                                    <p><strong>Precio llanta:</strong> $${llanta.precio} USD</p>
+                                </div>
+                            `);
+                        }
+                    }
+                });
+            } else {
+                llantaSeleccionada = null;
+                const precioElement = document.querySelector('.pedido-producto-texto .precio');
+                if (precioElement) {
+                    precioElement.textContent = `$${productoActual.precio} USD`;
+                }
+                
+                const llantaInfoContainer = document.querySelector('.llanta-seleccionada-info');
+                if (llantaInfoContainer) {
+                    llantaInfoContainer.remove();
+                }
             }
         });
     }
     
-    // Recargar provincias y municipios
     const provinciaSelectModal = document.querySelector('#pedidoModal #provincia');
     const municipioSelectModal = document.querySelector('#pedidoModal #municipio');
     
-    // Cargar provincias en el modal
     provinciaSelectModal.innerHTML = '<option value="">Seleccione una provincia</option>';
     for (const provincia in ubicacionesCuba) {
         provinciaSelectModal.innerHTML += `<option value="${provincia}">${provincia}</option>`;
     }
     
-    // Configurar eventos para provincia/municipio en el modal
     provinciaSelectModal.addEventListener('change', function() {
         cargarMunicipiosEnModal(this.value, municipioSelectModal);
         verificarMensajeria(this.value, municipioSelectModal.value);
@@ -391,19 +506,7 @@ function mostrarModalPedido(productoId) {
     document.getElementById('pedidoModal').classList.add('show');
 }
 
-// Función auxiliar para cargar municipios en el modal
-function cargarMunicipiosEnModal(provincia, municipioSelect) {
-    municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
-    if (provincia && ubicacionesCuba[provincia]) {
-        ubicacionesCuba[provincia].forEach(municipio => {
-            municipioSelect.innerHTML += `<option value="${municipio}">${municipio}</option>`;
-        });
-    }
-}
-
-// Mostrar modal de selección de método de pago
 function mostrarModalPago(productoId) {
-    // Asegurarse de que tenemos el producto correcto
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
     
@@ -413,43 +516,208 @@ function mostrarModalPago(productoId) {
         cantidadActual = parseInt(cantidadInput.value) || 1;
     }
     
-    // Determinar si es con rín (usando la propiedad guardada o el valor actual)
     const esGoma = productoActual.categoria === 'Gomas';
-    let conRinActual = false;
+    let precioBase = productoActual.precio;
+    let precioLlanta = 0;
     
     if (esGoma) {
-        // Usar la propiedad guardada en productoActual si existe (desde el modal de detalles)
-        if (productoActual.conRinSeleccionado !== undefined) {
-            conRinActual = productoActual.conRinSeleccionado;
+        if (productoActual.conRinSeleccionado) {
+            if (productoActual.llantaSeleccionada) {
+                llantaSeleccionada = productoActual.llantaSeleccionada;
+            }
+            precioBase = calcularPrecioBaseGoma(productoActual.precio);
+            precioLlanta = llantaSeleccionada?.precio || 0;
         } else {
-            // Si no, usar el valor del select correspondiente
             const selectRin = document.getElementById(`rin-${productoId}`) || document.getElementById('rin-detalles');
-            if (selectRin) {
-                conRinActual = selectRin.value === 'si';
+            if (selectRin?.value === 'si' && llantaSeleccionada) {
+                precioBase = calcularPrecioBaseGoma(productoActual.precio);
+                precioLlanta = llantaSeleccionada.precio;
             }
         }
     }
     
+    const total = (precioBase + precioLlanta) * cantidadActual;
+    
+    const metodosPagoContainer = document.getElementById('metodos-pago');
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
     
-    // Calcular precio según opción de Rin para gomas
-    let precioBase = productoActual.precio;
-    let precioRin = 0;
-    
-    if (esGoma) {
-        precioRin = calcularPrecioRin(productoActual.descripcion);
-        precioBase = conRinActual ? precioRin : precioBase;
+    let resumenCompra = '';
+    if (esGoma && (productoActual.conRinSeleccionado || llantaSeleccionada)) {
+        resumenCompra = `
+            <div class="resumen-compra">
+                <h4 class="resumen-titulo">Resumen de compra</h4>
+                <div class="resumen-item">
+                    <span class="resumen-label">Producto:</span>
+                    <span class="resumen-valor">${productoActual.nombre}</span>
+                </div>
+                <div class="resumen-item">
+                    <span class="resumen-label">Precio goma:</span>
+                    <span class="resumen-valor">$${precioBase} USD</span>
+                </div>
+                ${llantaSeleccionada ? `
+                <div class="resumen-item">
+                    <span class="resumen-label">Llanta:</span>
+                    <span class="resumen-valor">${llantaSeleccionada.nombre}</span>
+                </div>
+                <div class="resumen-item">
+                    <span class="resumen-label">Precio llanta:</span>
+                    <span class="resumen-valor">$${llantaSeleccionada.precio} USD</span>
+                </div>
+                ` : ''}
+                <div class="resumen-item">
+                    <span class="resumen-label">Precio unitario:</span>
+                    <span class="resumen-valor">$${precioBase + (llantaSeleccionada?.precio || 0)} USD</span>
+                </div>
+                <div class="resumen-item">
+                    <span class="resumen-label">Cantidad:</span>
+                    <span class="resumen-valor">${cantidadActual}</span>
+                </div>
+                <div class="resumen-item total">
+                    <span class="resumen-label">Total:</span>
+                    <span class="resumen-valor">$${total} USD</span>
+                </div>
+            </div>
+        `;
+    } else {
+        resumenCompra = `
+            <div class="resumen-compra">
+                <h4 class="resumen-titulo">Resumen de compra</h4>
+                <div class="resumen-item">
+                    <span class="resumen-label">Producto:</span>
+                    <span class="resumen-valor">${productoActual.nombre}</span>
+                </div>
+                <div class="resumen-item">
+                    <span class="resumen-label">Precio unitario:</span>
+                    <span class="resumen-valor">${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}</span>
+                </div>
+                <div class="resumen-item">
+                    <span class="resumen-label">Cantidad:</span>
+                    <span class="resumen-valor">${cantidadActual}</span>
+                </div>
+                <div class="resumen-item total">
+                    <span class="resumen-label">Total:</span>
+                    <span class="resumen-valor">${esPieza ? `$${total} USD` : formatearPrecio(total)}</span>
+                </div>
+            </div>
+        `;
     }
     
-    const total = precioBase * cantidadActual;
+    let metodosPagoHTML = '';
     
-    // Configurar métodos de pago
-    configurarMetodosPago(productoActual, total, conRinActual);
+    if (esPieza) {
+        metodosPagoHTML = `
+            ${resumenCompra}
+            <div class="metodos-pago-container">
+                <h4 class="metodos-titulo">Métodos de pago</h4>
+                <div class="metodo-pago" data-metodo="zelle" data-porcentaje="5">
+                    <div class="metodo-icono">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Pago por Zelle</h4>
+                        <p class="metodo-detalle">Total: $${(total * (1 + Config.tasaZelle)).toFixed(2)} USD (incluye 5%)</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="zelle" required>
+                    </div>
+                </div>
+                <div class="metodo-pago" data-metodo="transferencia" data-porcentaje="10">
+                    <div class="metodo-icono">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Transferencia</h4>
+                        <p class="metodo-detalle">Total: $${(total * (1 + Config.tasaTransferencia)).toFixed(2)} USD (incluye 10%)</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="transferencia" required>
+                    </div>
+                </div>
+                <div class="metodo-pago" data-metodo="efectivo-cup">
+                    <div class="metodo-icono">
+                        <i class="fas fa-money-bill"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Efectivo (CUP)</h4>
+                        <p class="metodo-detalle">Total: $${total} USD (Tasa del día)</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="efectivo-cup" required>
+                    </div>
+                </div>
+                <div class="metodo-pago" data-metodo="efectivo-usd">
+                    <div class="metodo-icono">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Efectivo (USD)</h4>
+                        <p class="metodo-detalle">Total: $${total} USD</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="efectivo-usd" required>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else {
+        metodosPagoHTML = `
+            ${resumenCompra}
+            <div class="metodos-pago-container">
+                <h4 class="metodos-titulo">Métodos de pago</h4>
+                <div class="metodo-pago" data-metodo="transferencia">
+                    <div class="metodo-icono">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Transferencia</h4>
+                        <p class="metodo-detalle">Pago por transferencia bancaria</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="transferencia-hm" required>
+                    </div>
+                </div>
+                <div class="metodo-pago" data-metodo="efectivo-cup">
+                    <div class="metodo-icono">
+                        <i class="fas fa-money-bill"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Efectivo (CUP)</h4>
+                        <p class="metodo-detalle">Pago en moneda nacional</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="efectivo-cup-hm" required>
+                    </div>
+                </div>
+                <div class="metodo-pago" data-metodo="efectivo-usd">
+                    <div class="metodo-icono">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="metodo-info">
+                        <h4 class="metodo-nombre">Efectivo (USD)</h4>
+                        <p class="metodo-detalle">Pago en dólares americanos</p>
+                    </div>
+                    <div class="metodo-seleccion">
+                        <input type="radio" name="metodo-pago" id="efectivo-usd-hm" required>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
-    // Resetear método de pago seleccionado
+    metodosPagoContainer.innerHTML = metodosPagoHTML;
+    
+    // Configurar evento para selección de método de pago
+    document.querySelectorAll('.metodo-pago').forEach(metodo => {
+        metodo.addEventListener('click', function() {
+            document.querySelectorAll('.metodo-pago').forEach(m => m.classList.remove('selected'));
+            this.classList.add('selected');
+            const radio = this.querySelector('input[type="radio"]');
+            radio.checked = true;
+        });
+    });
+    
     metodoPagoSeleccionado = null;
     
-    // Configurar botones del modal de pago
     document.querySelector('.cancelar-pago').addEventListener('click', cerrarModal);
     
     document.querySelector('.confirmar-pago').addEventListener('click', function() {
@@ -461,10 +729,24 @@ function mostrarModalPago(productoId) {
         
         metodoPagoSeleccionado = metodoSeleccionado.closest('.metodo-pago').dataset.metodo;
         cerrarModal();
-        enviarPedidoWhatsapp(productoId, true);
+        enviarPedidoWhatsapp(productoActual.id, true);
     });
     
+    // Asegurarse de que el modal sea responsive
+    const pagoModal = document.getElementById('pagoModal');
+    pagoModal.style.overflowY = 'auto';
+    
     document.getElementById('pagoModal').classList.add('show');
+}
+
+// Función auxiliar para cargar municipios en el modal
+function cargarMunicipiosEnModal(provincia, municipioSelect) {
+    municipioSelect.innerHTML = '<option value="">Seleccione un municipio</option>';
+    if (provincia && ubicacionesCuba[provincia]) {
+        ubicacionesCuba[provincia].forEach(municipio => {
+            municipioSelect.innerHTML += `<option value="${municipio}">${municipio}</option>`;
+        });
+    }
 }
 
 // Cerrar modal
@@ -474,6 +756,7 @@ function cerrarModal() {
     document.getElementById('pagoModal').classList.remove('show');
 }
 
+// Enviar pedido por WhatsApp
 // Enviar pedido por WhatsApp
 function enviarPedidoWhatsapp(event, esCompra = false) {
     if (!esCompra) {
@@ -485,6 +768,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     let cantidad;
     let conRinActual = false;
     let rinSeleccionado = "Sin Rin"; // Valor por defecto
+    let llantaInfo = '';
 
     if (esCompra) {
         producto = productoActual;
@@ -497,6 +781,23 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
                           conRin;
             
             rinSeleccionado = conRinActual ? "Con Rin" : "Sin Rin";
+            
+            if (conRinActual && llantaSeleccionada) {
+                const precioBaseGoma = calcularPrecioBaseGoma(producto.precio);
+                llantaInfo = `
+🛞 *Opción Rin:* Con Rin (Llanta seleccionada)
+🔩 *Llanta seleccionada:* ${llantaSeleccionada.nombre}
+🔧 *Descripción llanta:* ${llantaSeleccionada.descripcion}
+💰 *Precio goma:* $${precioBaseGoma} USD
+💰 *Precio llanta:* $${llantaSeleccionada.precio} USD
+💰 *Precio unitario total:* $${precioBaseGoma + llantaSeleccionada.precio} USD
+                `;
+            } else {
+                llantaInfo = `
+🛞 *Opción Rin:* Sin Rin
+💰 *Precio unitario:* $${producto.precio} USD
+                `;
+            }
         }
     } else {
         const productoId = document.getElementById('productoId').value;
@@ -506,6 +807,23 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         if (producto.categoria === 'Gomas') {
             conRinActual = document.getElementById('con-rin')?.value === 'si';
             rinSeleccionado = conRinActual ? "Con Rin" : "Sin Rin";
+            
+            if (conRinActual && llantaSeleccionada) {
+                const precioBaseGoma = calcularPrecioBaseGoma(producto.precio);
+                llantaInfo = `
+🛞 *Opción Rin:* Con Rin (Llanta seleccionada)
+🔩 *Llanta seleccionada:* ${llantaSeleccionada.nombre}
+🔧 *Descripción llanta:* ${llantaSeleccionada.descripcion}
+💰 *Precio goma:* $${precioBaseGoma} USD
+💰 *Precio llanta:* $${llantaSeleccionada.precio} USD
+💰 *Precio unitario total:* $${precioBaseGoma + llantaSeleccionada.precio} USD
+                `;
+            } else {
+                llantaInfo = `
+🛞 *Opción Rin:* Sin Rin
+💰 *Precio unitario:* $${producto.precio} USD
+                `;
+            }
         }
     }
 
@@ -517,21 +835,13 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     const esPieza = Config.categoriasPiezas.includes(producto.categoria);
     const esGoma = producto.categoria === 'Gomas';
     
-    // Calcular precio según opción de Rin para gomas
-    let precioBase = producto.precio;
-    let precioRin = 0;
-    let conRinText = '';
-    let rinSize = '';
-    
-    if (esGoma) {
-        precioRin = calcularPrecioRin(producto.descripcion);
-        precioBase = conRinActual ? precioRin : precioBase;
-        const match = producto.descripcion.match(/R(\d+)/);
-        rinSize = match ? match[1] : '';
-        conRinText = conRinActual ? ` (Con Rin R${rinSize})` : ` (Sin Rin)`;
+    // Calcular precio total
+    let precioUnitario = producto.precio;
+    if (esGoma && conRinActual && llantaSeleccionada) {
+        precioUnitario = calcularPrecioBaseGoma(producto.precio) + llantaSeleccionada.precio;
     }
     
-    const total = precioBase * cantidad;
+    const total = precioUnitario * cantidad;
     
     let mensaje = '';
     let numeroWhatsapp = Config.whatsappNumbers.consultas;
@@ -561,8 +871,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
 
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
-🛞 *Opción Rin:* ${rinSeleccionado}${rinSize ? ' R' + rinSize : ''}
-💰 *Precio unitario:* $${precioBase} USD
+${llantaInfo}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* $${totalPago.toFixed(2)} USD
 💳 *Método de pago:* ${metodoPagoText}
@@ -581,7 +890,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
 
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
-💰 *Precio unitario:* ${formatearPrecio(precioBase)}
+${llantaInfo}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${formatearPrecio(totalPago)}
 💳 *Método de pago:* ${metodoPagoText}
@@ -599,7 +908,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
 
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
-${esGoma ? `🛞 *Opción Rin:* ${rinSeleccionado}${rinSize ? ' R' + rinSize : ''}\n` : ''}💰 *Precio unitario:* ${esPieza ? `$${precioBase} USD` : formatearPrecio(precioBase)}
+${llantaInfo}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${esPieza ? `$${total} USD` : formatearPrecio(total)}
 
@@ -662,121 +971,152 @@ function filtrarPorCategoria(categoria) {
     renderizarProductos(productosFiltrados);
 }
 
-// Configurar métodos de pago
-function configurarMetodosPago(producto, total, conRin = false) {
-    const esPieza = Config.categoriasPiezas.includes(producto.categoria);
-    const metodosPagoContainer = document.getElementById('metodos-pago');
+// Inicializar galería de imágenes
+function inicializarGaleria() {
+    const galeriaContainer = document.querySelector('.galeria-container');
+    const galeriaItems = document.querySelectorAll('.galeria-item');
+    const indicadores = document.querySelectorAll('.galeria-indicador');
+    const btnPrev = document.querySelector('.galeria-prev');
+    const btnNext = document.querySelector('.galeria-next');
     
-    // Texto adicional para Rin
-    const rinInfo = producto.categoria === 'Gomas' ? 
-                  ` (${conRin ? 'Con Rin R' + producto.descripcion.match(/R(\d+)/)[1] : 'Sin Rin'})` : 
-                  '';
+    let currentIndex = 0;
     
-    let metodosPagoHTML = '';
-    
-    if (esPieza) {
-        metodosPagoHTML = `
-            <h3>Total: $${total} USD${rinInfo}</h3>
-            <div class="metodo-pago" data-metodo="zelle" data-porcentaje="5">
-                <div class="metodo-icono">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Pago por Zelle</h4>
-                    <p>Total: $${(total * (1 + Config.tasaZelle)).toFixed(2)} USD (incluye 5%)</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="zelle" required>
-                </div>
-            </div>
-            <div class="metodo-pago" data-metodo="transferencia" data-porcentaje="10">
-                <div class="metodo-icono">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Transferencia</h4>
-                    <p>Total: $${(total * (1 + Config.tasaTransferencia)).toFixed(2)} USD (incluye 10%)</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="transferencia" required>
-                </div>
-            </div>
-            <div class="metodo-pago" data-metodo="efectivo-cup">
-                <div class="metodo-icono">
-                    <i class="fas fa-money-bill"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Efectivo (CUP)</h4>
-                    <p>Total: $${total} USD (Tasa del día)</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="efectivo-cup" required>
-                </div>
-            </div>
-            <div class="metodo-pago" data-metodo="efectivo-usd">
-                <div class="metodo-icono">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Efectivo (USD)</h4>
-                    <p>Total: $${total} USD</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="efectivo-usd" required>
-                </div>
-            </div>
-        `;
-    } else {
-        metodosPagoHTML = `
-            <h3>Total: ${formatearPrecio(total)}${rinInfo}</h3>
-            <div class="metodo-pago" data-metodo="transferencia">
-                <div class="metodo-icono">
-                    <i class="fas fa-exchange-alt"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Transferencia</h4>
-                    <p>Pago por transferencia bancaria</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="transferencia-hm" required>
-                </div>
-            </div>
-            <div class="metodo-pago" data-metodo="efectivo-cup">
-                <div class="metodo-icono">
-                    <i class="fas fa-money-bill"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Efectivo (CUP)</h4>
-                    <p>Pago en moneda nacional</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="efectivo-cup-hm" required>
-                </div>
-            </div>
-            <div class="metodo-pago" data-metodo="efectivo-usd">
-                <div class="metodo-icono">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="metodo-info">
-                    <h4>Efectivo (USD)</h4>
-                    <p>Pago en dólares americanos</p>
-                </div>
-                <div class="metodo-seleccion">
-                    <input type="radio" name="metodo-pago" id="efectivo-usd-hm" required>
-                </div>
-            </div>
-        `;
+    function showSlide(index) {
+        galeriaItems.forEach((item, i) => {
+            item.classList.toggle('active', i === index);
+        });
+        
+        indicadores.forEach((indicador, i) => {
+            indicador.classList.toggle('active', i === index);
+        });
     }
     
-    metodosPagoContainer.innerHTML = metodosPagoHTML;
+    btnPrev?.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + galeriaItems.length) % galeriaItems.length;
+        showSlide(currentIndex);
+    });
     
-    // Configurar evento para selección de método de pago
-    document.querySelectorAll('.metodo-pago').forEach(metodo => {
-        metodo.addEventListener('click', function() {
-            document.querySelectorAll('.metodo-pago').forEach(m => m.classList.remove('selected'));
-            this.classList.add('selected');
-            const radio = this.querySelector('input[type="radio"]');
-            radio.checked = true;
+    btnNext?.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % galeriaItems.length;
+        showSlide(currentIndex);
+    });
+    
+    indicadores.forEach((indicador, index) => {
+        indicador.addEventListener('click', () => {
+            currentIndex = index;
+            showSlide(currentIndex);
         });
     });
+    
+    // Mostrar el primer slide al inicializar
+    if (galeriaItems.length > 0) {
+        showSlide(0);
+    }
 }
+
+// Mostrar notificación
+function mostrarNotificacion(mensaje, tipo = 'exito') {
+    const notificacion = document.createElement('div');
+    notificacion.className = `notificacion ${tipo}`;
+    notificacion.textContent = mensaje;
+    
+    document.body.appendChild(notificacion);
+    
+    setTimeout(() => {
+        notificacion.classList.add('mostrar');
+    }, 10);
+    
+    setTimeout(() => {
+        notificacion.classList.remove('mostrar');
+        setTimeout(() => {
+            document.body.removeChild(notificacion);
+        }, 300);
+    }, 3000);
+}
+
+// Verificar mensajería según ubicación
+function verificarMensajeria(provincia, municipio) {
+    // Implementar lógica para verificar disponibilidad de mensajería
+    // según la provincia y municipio seleccionados
+}
+
+// Inicializar la aplicación
+function init() {
+    cargarProvincias();
+    
+    // Configurar eventos para provincia/municipio
+    document.getElementById('provincia').addEventListener('change', function() {
+        cargarMunicipios(this.value);
+        verificarMensajeria(this.value, document.getElementById('municipio').value);
+    });
+    
+    document.getElementById('municipio').addEventListener('change', function() {
+        verificarMensajeria(document.getElementById('provincia').value, this.value);
+    });
+    
+    // Configurar eventos de búsqueda
+    document.getElementById('buscador').addEventListener('input', function() {
+        buscarProductos(this.value);
+    });
+    
+    // Configurar eventos de categorías
+    document.querySelectorAll('.subcategory-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.subcategory-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            filtrarPorCategoria(this.dataset.categoria);
+        });
+    });
+    
+    // Configurar eventos para los botones de compra rápida
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.comprar-ahora')) {
+            const productoId = e.target.closest('.comprar-ahora').dataset.id;
+            const cantidadInput = document.getElementById(`cantidad-${productoId}`);
+            cantidadActual = parseInt(cantidadInput.value) || 1;
+            
+            productoActual = productos.find(p => p.id == productoId);
+            
+            if (productoActual.categoria === 'Gomas') {
+                const selectRin = e.target.closest('.producto-card').querySelector('[id^="rin-"]');
+                conRin = selectRin?.value === 'si';
+                
+                if (conRin && productoActual.llantaSeleccionada) {
+                    llantaSeleccionada = productoActual.llantaSeleccionada;
+                }
+            }
+            
+            mostrarModalPago(productoId);
+        }
+        
+        if (e.target.closest('.hacer-pedido')) {
+            const productoId = e.target.closest('.hacer-pedido').dataset.id;
+            const cantidadInput = document.getElementById(`cantidad-${productoId}`);
+            cantidadActual = parseInt(cantidadInput.value) || 1;
+            
+            productoActual = productos.find(p => p.id == productoId);
+            
+            if (productoActual.categoria === 'Gomas') {
+                const selectRin = e.target.closest('.producto-card').querySelector('[id^="rin-"]');
+                conRin = selectRin?.value === 'si';
+                
+                if (conRin && productoActual.llantaSeleccionada) {
+                    llantaSeleccionada = productoActual.llantaSeleccionada;
+                }
+            }
+            
+            mostrarModalPedido(productoId);
+        }
+        
+        if (e.target.closest('.ver-detalles')) {
+            const productoId = e.target.closest('.ver-detalles').dataset.id;
+            mostrarModalDetalles(productoId);
+        }
+    });
+    
+    // Configurar evento para el formulario de pedido
+    document.getElementById('pedidoForm')?.addEventListener('submit', enviarPedidoWhatsapp);
+}
+
+// Esperar a que el DOM esté cargado
+document.addEventListener('DOMContentLoaded', init);

@@ -1,4 +1,3 @@
-// Base de datos de productos (simulada)
 function cargarProductos() {
     return [
         {

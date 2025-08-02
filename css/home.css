@@ -53,13 +53,13 @@ body{
     transform: scale(1.03);
 }
 .hero-content h1 {
-    font-weight: 800; /* más bold que el 700 por defecto */
+    font-weight: 800; 
     font-size: 3.5rem;
     
 }
 
 .highlight {
-    color: #ff5c5c; /* rojo coral llamativo, puedes ajustar el color */
+    color: #ff5c5c; 
 }
 .logo {
     display: flex;
@@ -73,7 +73,7 @@ body{
 
 .logo i {
     font-size: 2rem;
-    color: #ff5c5c; /* Puedes cambiar el color del ícono aquí */
+    color: #ff5c5c; 
 }
 
 
@@ -136,10 +136,10 @@ body{
   padding: 12px 24px;
   font-size: 1rem;
   font-weight: 600;
-  border: 2px solid #fff; /* borde blanco */
+  border: 2px solid #fff; 
   border-radius: 8px;
-  background-color: #000; /* fondo negro */
-  color: #fff; /* letra blanca */
+  background-color: #000; 
+  color: #fff; 
   position: relative;
   transition: all 0.3s ease-in-out;
   animation: slideBounce 0.8s ease-out;
@@ -151,7 +151,6 @@ body{
   color: #000;
 }
 
-/* Nueva animación: entrada con rebote */
 @keyframes slideBounce {
   0% {
     transform: translateY(-50px);
@@ -184,7 +183,6 @@ body{
   font-size: 1.5em;
 }
 
-/* Animación de entrada suave */
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -207,12 +205,10 @@ body{
   animation: fadeInUp 0.8s ease-out;
 }
 
-/* ícono ligeramente más grande */
 .whatsapp-contact i {
   font-size: 1.5em;
 }
 
-/* Centrado en móviles */
 @media (max-width: 600px) {
   .whatsapp-contact {
     justify-content: center;
