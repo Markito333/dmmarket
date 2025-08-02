@@ -354,11 +354,13 @@ function mostrarModalDetalles(productoId) {
     document.getElementById('detallesModal').classList.add('show');
 }
 
-// Mostrar modal de pedido con imagen
 function mostrarModalPedido(productoId) {
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
-    
+    if (productoActual.categoria === 'Llantas' || 
+       (productoActual.categoria === 'Gomas' && conRin)) {
+        mostrarNotificacion('🚚 ¡Mensajería GRATIS para La Habana y Artemisa!', 'info');
+    }
     const esPieza = Config.categoriasPiezas.includes(productoActual.categoria);
     const esGoma = productoActual.categoria === 'Gomas';
     const precioBase = productoActual.precio;
@@ -509,7 +511,11 @@ function mostrarModalPedido(productoId) {
 function mostrarModalPago(productoId) {
     productoActual = productos.find(p => p.id == productoId);
     if (!productoActual) return;
-    
+     // Mostrar notificación si es llanta o goma con rin
+    if (productoActual.categoria === 'Llantas' || 
+       (productoActual.categoria === 'Gomas' && productoActual.conRinSeleccionado)) {
+        mostrarNotificacion('🚚 ¡Mensajería GRATIS para La Habana y Artemisa!', 'info');
+    }
     // Verificar nuevamente la cantidad
     const cantidadInput = document.getElementById(`cantidad-${productoId}`) || document.getElementById('cantidad-detalles');
     if (cantidadInput) {
@@ -767,7 +773,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     let producto;
     let cantidad;
     let conRinActual = false;
-    let rinSeleccionado = "Sin Rin"; // Valor por defecto
+    let rinSeleccionado = "Sin Rin";
     let llantaInfo = '';
 
     if (esCompra) {
@@ -775,7 +781,6 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
         cantidad = cantidadActual;
         
         if (producto.categoria === 'Gomas') {
-            // Usar la propiedad guardada o el valor actual
             conRinActual = producto.conRinSeleccionado !== undefined ? 
                           producto.conRinSeleccionado : 
                           conRin;
@@ -834,6 +839,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
 
     const esPieza = Config.categoriasPiezas.includes(producto.categoria);
     const esGoma = producto.categoria === 'Gomas';
+    const esLlanta = producto.categoria === 'Llantas';
     
     // Calcular precio total
     let precioUnitario = producto.precio;
@@ -842,6 +848,12 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
     }
     
     const total = precioUnitario * cantidad;
+    
+    // Mensaje de mensajería gratis (si aplica)
+    const mensajeMensajeria = (esLlanta || (esGoma && conRinActual)) ? `
+🎉 *¡OFERTA ESPECIAL!* 🎉
+🚚 Mensajería GRATIS para clientes de La Habana y Artemisa
+    ` : '';
     
     let mensaje = '';
     let numeroWhatsapp = Config.whatsappNumbers.consultas;
@@ -872,6 +884,7 @@ function enviarPedidoWhatsapp(event, esCompra = false) {
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
 ${llantaInfo}
+${mensajeMensajeria}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* $${totalPago.toFixed(2)} USD
 💳 *Método de pago:* ${metodoPagoText}
@@ -891,6 +904,7 @@ ${llantaInfo}
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
 ${llantaInfo}
+${mensajeMensajeria}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${formatearPrecio(totalPago)}
 💳 *Método de pago:* ${metodoPagoText}
@@ -909,6 +923,7 @@ ${llantaInfo}
 📌 *Producto:* ${producto.nombre}
 📝 *Descripción:* ${producto.descripcion}
 ${llantaInfo}
+${mensajeMensajeria}
 🔢 *Cantidad:* ${cantidad}
 💵 *Total:* ${esPieza ? `$${total} USD` : formatearPrecio(total)}
 
@@ -919,7 +934,6 @@ ${llantaInfo}
 
 ¿Podrías confirmarme la disponibilidad y el proceso de pago? ¡Gracias!`;
         
-        // Usar número de pedidos para piezas
         if (esPieza) {
             numeroWhatsapp = Config.whatsappNumbers.pedidos;
         }
@@ -934,6 +948,57 @@ ${llantaInfo}
     }
     
     mostrarNotificacion(esCompra ? 'Compra enviada por WhatsApp' : 'Pedido enviado por WhatsApp', 'exito');
+}
+
+// Modificar la función mostrarModalLlantas para mostrar notificación
+function mostrarModalLlantas(tamanioRin, callbackSeleccion) {
+    const llantasCompatibles = filtrarLlantasCompatibles(tamanioRin);
+    
+    if (llantasCompatibles.length === 0) {
+        mostrarNotificacion('No hay llantas disponibles para este tamaño', 'error');
+        return;
+    }
+    
+    const modalContent = `
+        <div class="modal-header">
+            <h3>Seleccione una llanta R${tamanioRin}</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="llantas-container">
+                ${llantasCompatibles.map(llanta => `
+                    <div class="llanta-card" data-id="${llanta.id}">
+                        <img src="${llanta.imagenes[0]}" alt="${llanta.nombre}">
+                        <h4>${llanta.nombre}</h4>
+                        <p>${llanta.descripcion}</p>
+                        <p class="precio">$${llanta.precio} USD</p>
+                        <button class="btn btn-primary seleccionar-llanta">Seleccionar</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-llantas';
+    modal.innerHTML = modalContent;
+    document.body.appendChild(modal);
+    
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+        document.body.removeChild(modal);
+    });
+    
+    modal.querySelectorAll('.seleccionar-llanta').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const llantaId = this.closest('.llanta-card').dataset.id;
+            const llanta = llantasCompatibles.find(l => l.id == llantaId);
+            callbackSeleccion(llanta);
+            document.body.removeChild(modal);
+            
+            // Mostrar notificación de mensajería gratis
+            mostrarNotificacion('🚚 ¡Mensajería GRATIS para La Habana y Artemisa en compras de llantas o gomas con rines!', 'info');
+        });
+    });
 }
 
 // Buscar productos
@@ -1094,16 +1159,28 @@ function init() {
             const cantidadInput = document.getElementById(`cantidad-${productoId}`);
             cantidadActual = parseInt(cantidadInput.value) || 1;
             
+            // Asegurarnos de actualizar productoActual correctamente
             productoActual = productos.find(p => p.id == productoId);
             
             if (productoActual.categoria === 'Gomas') {
                 const selectRin = e.target.closest('.producto-card').querySelector('[id^="rin-"]');
                 conRin = selectRin?.value === 'si';
                 
-                if (conRin && productoActual.llantaSeleccionada) {
-                    llantaSeleccionada = productoActual.llantaSeleccionada;
+                if (conRin) {
+                    // Si es goma con rin, asegurarnos de tener la llanta seleccionada
+                    if (!productoActual.llantaSeleccionada && llantaSeleccionada) {
+                        productoActual.llantaSeleccionada = llantaSeleccionada;
+                    }
+                } else {
+                    productoActual.conRinSeleccionado = false;
+                    productoActual.llantaSeleccionada = null;
                 }
             }
+            
+            // Limpiar posibles valores anteriores
+            llantaSeleccionada = productoActual.llantaSeleccionada;
+            conRin = productoActual.categoria === 'Gomas' ? 
+                    (productoActual.conRinSeleccionado || false) : false;
             
             mostrarModalPedido(productoId);
         }
@@ -1113,6 +1190,7 @@ function init() {
             mostrarModalDetalles(productoId);
         }
     });
+    
     
     // Configurar evento para el formulario de pedido
     document.getElementById('pedidoForm')?.addEventListener('submit', enviarPedidoWhatsapp);

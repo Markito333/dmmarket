@@ -1276,7 +1276,6 @@
     margin-top: 20px;
 }
 
-/* Estilos para la opción de Rin en gomas */
 .producto-rin {
     margin-bottom: 15px;
 }
@@ -1693,4 +1692,14 @@ width: 140px;
 .notificacion.error {
     background: #c92a2a;
 }
+.notificacion.info {
+    background-color: #1971c2;
+    border-left: 5px solid #1864ab;
+    font-size: 1.1em;
+}
 
+.notificacion.info::before {
+    content: "";
+    margin-right: 10px;
+    font-size: 1.3em;
+}
