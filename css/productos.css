@@ -1287,10 +1287,13 @@
 }
 
 .producto-rin select {
-    padding: 8px;
+    padding: 5px;
     border: 1px solid var(--color-light-gray);
     border-radius: var(--border-radius);
     font-size: 1rem;
+background-color: white;
+border:solid 1px #ff6c6c;
+width: 140px;
 }
 
 /* Ajustes para móviles */
